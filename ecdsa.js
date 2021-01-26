@@ -4,6 +4,11 @@ class ECDSA {
         this.ec = ec;
         this.g = g;
     }
+    scalar(x)
+    {
+        return this.ec.order.value(x);
+    }
+
     calcpub(x)
     {
         return this.g.mul(x);
@@ -22,10 +27,14 @@ class ECDSA {
     crack2(r, m1, m2, s1, s2)
     {
         var k = m1.sub(m2).div(s1.sub(s2))
-        var x1 = crack1(k, m1, s1);
-        var x2 = crack1(k, m2, s2);
-        if (x1==x2)
+        var x1 = this.crack1(k, m1, r, s1);
+        var x2 = this.crack1(k, m2, r, s2);
+        if (x1.equals(x2))
             return [k, x1];
+        console.log("k=", k);
+        console.log("x1=", x1);
+        console.log("x2=", x2);
+        return [0, 0];
     }
     crack1(k, m, r, s)
     {
