@@ -23,6 +23,7 @@ var g_p; var g_a; var g_b;
 var ec;
 var curvepoints;
 var g_start;
+var pointlookup = {};
 
 function loadec(p, a, b)
 {
@@ -48,9 +49,20 @@ function calcpoints()
                 curvepoints.push(ec.point(x, y1));
         }
     }
-    g_start = curvepoints[Math.floor(curvepoints.length/2)];
-}
+    //g_start = curvepoints[Math.floor(curvepoints.length/2)];
 
+    for (var pt of curvepoints)
+        pointlookup[indexkey(pt)] = pt;
+}
+function indexkey(p)
+{
+    return "("+Math.round(p.x.uint()/5).toString(10)+","+Math.round(p.y.uint()/5).toString(10)+")";
+}
+function findpoint(x, y)
+{
+    var ix = "("+Math.round(x/5).toString(10)+","+Math.round(y/5).toString(10)+")";
+    return pointlookup[ix];
+}
 function drawpoint(ctx, pt)
 {
     ctx.fillRect(pt.x.uint()-1, pt.y.uint()-1, 3, 3);
@@ -130,9 +142,12 @@ function start()
 
     var fp = document.getElementById("points");
     fp.onmousemove = function(e) {
-            var pt = ec.point(e.offsetX, e.offsetY);
-            g_start = pt.isoncurve() ? pt : undefined;
-            update();
+            var pt = findpoint(e.offsetX, e.offsetY);
+            if (pt) {
+                    console.log("new path");
+                g_start = pt;
+                update();
+            }
         };
 }
 function setnrpoints(n)
