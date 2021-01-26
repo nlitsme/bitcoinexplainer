@@ -78,7 +78,7 @@ class EllipticCurve {
             return false;
         return lhs.x.equals(rhs.x) && lhs.y.equals(rhs.y);
     }
-    //div(lhs, rhs) { return this.mul(lhs, rhs.inverse()); } -- needs group order.
+    div(lhs, rhs) { return this.mul(lhs, rhs.inverse()); } // needs group order.
 
     infinity() { return this.point(undefined, undefined); }
     // y^2 == x^3+x*a+b
