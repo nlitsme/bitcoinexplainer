@@ -1,0 +1,76 @@
+<html>
+    <head>
+        <meta charset=utf-8 />
+        <script src="bignum.js"></script>
+        <script src="gfp.js"></script>
+        <script src="ec.js"></script>
+        <script src="ecdsa.js"></script>
+        <script src="utils.js"></script>
+        <script src="bccurve.js"></script>
+<script language=javascript>
+
+var B = secp256k1();
+function start()
+{
+    setvalue("r", "cabc3692f1f7ba75a8572dc5d270b35bcc00650534f6e5ecd6338e55355454d5");
+    setvalue("m1", "9b076ad2fe6b2ce63acf4edf7fc82d5152d3c8bffb36b944da7a1cce038f544a");
+    setvalue("s1", "f65bfc44435a91814c142a3b8ee288a9183e6a3f012b84545d1fe334ccfac25e");
+    setvalue("m2", "85e43d48a83d8713a0fe253bf6b1fc70b8ee780e54749dc500f2880b056c4383");
+    setvalue("s2", "9cae782a191f3e742d9d4ff8f726d097a3a256af9fbc1faf16e7ec4d9fcf6feb");
+}
+function setvalue(id, value)
+{
+    var av =document.getElementById(id); 
+    av.value = value;
+    av.innerHTML = value;
+}
+function getnumber(id)
+{
+    var av =document.getElementById(id); 
+    var val = av.value;
+    if (!val.startsWith("0x"))
+        val = "0x" + val;
+    return B.scalar(BigInt(val));
+}
+
+function calculate()
+{
+    var r = getnumber("r");
+    var m1 = getnumber("m1");
+    var m2 = getnumber("m2");
+    var s1 = getnumber("s1");
+    var s2 = getnumber("s2");
+
+    var [k, x] = B.crack2(r, m1, m2, s1, s2);
+    setvalue("k.value", k.uint().toString(16));
+    setvalue("x.value", x.uint().toString(16));
+}
+</script>
+</script>
+    </head>
+    <body onLoad="start()">
+<table>
+<tr>
+<td>r: <input size=64 id='r'></td>
+<td><input type=button onclick='calculate()'></td>
+</tr>
+<tr>
+<td>m1: <input size=64 id='m1'></td>
+<td>s1: <input size=64 id='s1'></td>
+</tr>
+<tr>
+<td>m2: <input size=64 id='m2'></td>
+<td>s2: <input size=64 id='s2'></td>
+</tr>
+<tr>
+<td>
+k: <span id='k.value'></span>
+</td>
+<td>
+x: <span id='x.value'></span>
+</td>
+</tr>
+</table>
+    </body>
+</html>
+
