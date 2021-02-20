@@ -30,8 +30,10 @@ class EllipticCurve {
             return x;
         if (typeof(x) == "undefined")
             return new Point(this, undefined, undefined);
-        return new Point(this, this.field.value(x), this.field.value(y));
+        return new Point(this, this.coord(x), this.coord(y));
     }
+    // changes 'x' to be of galois field 'p'
+    coord(x) { return this.field.value(x); }
     add(lhs, rhs)
     {
         if (lhs.isinf()) return rhs;
@@ -56,8 +58,11 @@ class EllipticCurve {
     neg(p) { return this.point(p.x, p.y.neg()); }
     mul(lhs, rhs)
     {
-        if (rhs instanceof Point)
+        if (rhs instanceof Point) {
+            // handle: scalar * point
             return this.mul(rhs, lhs);
+        }
+        // handle:  point * scalar
         var accu = this.infinity();
         var shifter = lhs;
         var scalar = rhs;
@@ -82,6 +87,16 @@ class EllipticCurve {
 
     infinity() { return this.point(undefined, undefined); }
     // y^2 == x^3+x*a+b
-    isoncurve(p) { return p.isinf() || p.y.square().equals(p.x.cube().add(p.x.mul(this.a)).add(this.b)); }
+    isoncurve(p) { this.checkcurve(p); return p.isinf() || p.y.square().equals(p.x.cube().add(p.x.mul(this.a)).add(this.b)); }
+
+    checkcurve(p)
+    {
+        if (!this.equalscurve(p.curve))
+            console.log("point belongs to a different curve");
+    }
+    equalscurve(c)
+    {
+        return numequals(this.a, c.a) && numequals(this.b, c.b) && this.field.equalsfield(c.field);
+    }
 };
 
