@@ -14,7 +14,7 @@ function numone(x)
 }
 function numval(x)
 {
-    if (x instanceof Value) { return x.int(); }
+    if (x instanceof Value) { return x.uint(); }
     return x;
 } 
 function numshr(x)
