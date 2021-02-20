@@ -6,7 +6,10 @@
         <script src="ec.js"></script>
         <script src="ecdsa.js"></script>
         <script src="utils.js"></script>
+        <script src="jsutils.js"></script>
 <script language=javascript>
+
+// a short list of prime numbers.
 var primelist = [
 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157,
@@ -19,10 +22,14 @@ var primelist = [
 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859,
 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977,
 983, 991, 997 ];
-var g_p; var g_a; var g_b;
-var ec;
-var curvepoints;
-var g_start;
+
+var g_p; var g_a; var g_b;  // the curve parameters.
+
+var ec;         // the curve.
+
+var curvepoints; // the list of all points on the curve.
+var g_start;     // the starting point, selected by hovering over the grid.
+var g_nrlines=10;   // how many lines to draw from the starting point
 var pointlookup = {};
 
 function loadec(p, a, b)
@@ -104,7 +111,7 @@ function drawpath()
     
     var p = g_start;
     startline(ctx, g_start);
-    for (var i=0 ; i<10 ; i++)
+    for (var i=0 ; i<g_nrlines ; i++)
     {
         p = p.add(g_start);
         drawlineto(ctx, p);
@@ -123,32 +130,30 @@ function update()
 {
     loadec(g_p, g_a, g_b);
 }
+function makesliders()
+{
+    return [
+        makeslider("prime:", "prime", 0, primelist.length-1, Math.round(primelist.length/5), t => { g_p = primelist[Number(t)]; }, ()=>g_p),
+        makeslider("a:", "a", -16, 16, 0, t=>{ g_a = Number(t); }, ()=>g_a),
+        makeslider("b:", "b", -16, 16, 7, t=>{ g_b = Number(t); }, ()=>g_b),
+        makeslider("nlines:", "n", 0, 1000, 10, t=>{ g_nrlines = Number(t); }, ()=>g_nrlines),
+    ];
+}
 function start()
 {
-    var fp = document.getElementById("prime");
-    var vp =document.getElementById("prime.value"); 
-    fp.oninput = function() { g_p = primelist[Number(this.value)]; vp.innerHTML = g_p;  update(); };
-    fp.oninput();
-
-    var fa = document.getElementById("a");
-    var va =document.getElementById("a.value"); 
-    fa.oninput = function() { g_a = Number(this.value); va.innerHTML = g_a;  update(); };
-    fa.oninput();
-
-    var fb = document.getElementById("b");
-    var vb =document.getElementById("b.value"); 
-    fb.oninput = function() { g_b = Number(this.value); vb.innerHTML = g_b;  update(); };
-    fb.oninput();
+    var div = document.getElementById("controlsdiv");
+    div.append(...makesliders());
 
     var fp = document.getElementById("points");
     fp.onmousemove = function(e) {
             var pt = findpoint(e.offsetX, e.offsetY);
             if (pt) {
-                    console.log("new path");
                 g_start = pt;
                 update();
             }
         };
+
+    update();
 }
 function setnrpoints(n)
 {
@@ -159,16 +164,12 @@ function setnrpoints(n)
 </script>
     </head>
     <body onLoad="start()">
-<table>
-<tr>
-    <td> <input type="range" min="0" max="167" value="3" id="prime"><br> <span>prime:</span> <span id="prime.value"></span> </td>
-    <td> <input type="range" min="-16" max="16" value="0" id="a"><br> <span>a:</span> <span id="a.value"></span> </td>
-    <td> <input type="range" min="-16" max="16" value="7" id="b"><br> <span>b:</span> <span id="b.value"></span> </td>
-</tr>
-<tr>
-    <td> <span>order:</span> <span id="order.value"></span> </td>
-</tr>
-</table>
+<a href="bitcoincrack.html">crack demo</a> <a href="curve.html">curve demo</a> <a href="unittest.html">unittest</a>
+<div id="controlsdiv"></div>
+<div>
+<span>order:</span> <span id="order.value"></span>
+</div>
+
 <table>
     <tr>
         <td>
