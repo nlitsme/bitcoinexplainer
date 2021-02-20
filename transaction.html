@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>How bitcoin transactions are structured</title>
+    <style>
+    .w50 { width:100px; display: inline-block; }
+    </style>
+<meta charset=utf-8 />
+<meta http-equiv=“Pragma” content=”no-cache”>
+<meta http-equiv=“Expires” content=”-1″>
+<meta http-equiv=“CACHE-CONTROL” content=”NO-CACHE”>
+
+<meta name="keywords" content="bitcoin,example">
+<meta name="author" content="Willem Hengeveld, itsme@xs4all.nl">
+<meta name="description" content="How bitcoin transactions are structured.">
+
+<script src="bignum.js"></script>
+<script src="primes.js"></script>
+<script src="gfp.js"></script>
+<script src="ec.js"></script>
+<script src="ecdsa.js"></script>
+<script src="utils.js"></script>
+<script src="bitcoinio.js"></script>
+<script src="transaction.js"></script>
+<script src="jsutils.js"></script>
+<script language=javascript>
+function setvalue(base, id, value)
+{
+    var av = base.querySelector("#"+id); 
+    av.value = value;
+    av.innerHTML = value;
+}
+function getvalue(base, id)
+{
+    var av = base.querySelector("#"+id); 
+    return av.value;
+}
+
+function start()
+{
+    var tab = document.getElementById("transaction");
+    //setvalue(tab, "txnid", "19d66411a5aa716a04b37197c11c93c9446a54694a2d2302093d8b0a93ed5d83");
+    setvalue(tab, "txnid", "7d4036dbc43e3b785cabb22413b67ee6c8a7375ec316c226c29eb10915647988");
+}
+
+function loadtxn(x)
+{
+    var tab = document.getElementById("transaction");
+    
+    // problem with bitcoin.com: it is hours behind.
+    //fetch("https://rest.bitcoin.com/v2/rawtransactions/getRawTransaction/"+getvalue(tab, "txnid")).then(r => r.json()).then(r => processtxn(r));
+    fetch("https://api.blockchair.com/bitcoin/raw/transaction/"+getvalue(tab, "txnid")).then(r => r.json()).then(r => {
+        Object.entries(r.data).forEach( ([k,v])=> { processtxn(v.raw_transaction) });
+    });
+}
+function makerow(line)
+{
+    var tr = el('tr');
+    for (var e of line) {
+            tr.append(el('td', el('code', e)));
+    }
+    return tr;
+}
+function processtxn(hex)
+{
+    var r = new BitcoinReader(hextobytes(hex));
+    var t = new Transaction(r);
+    var tab = document.getElementById("hexdump");
+    for (line of t.hexdump()) {
+        tab.append(makerow(line));
+    }
+}
+</script>
+    </head>
+    <body onLoad="start()">
+Menu:
+  <a href="ecdsacrack.html">crack demo</a> 
+  <a href="curve.html">curve demo</a> 
+  <a href="transaction.html">bitcoin transaction</a> 
+  <a href="unittest.html">unittest</a>,
+Author: <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>
+<p>
+This demonstrates how bitcoin transactions are structured.
+
+<table id=transaction>
+    <tr>
+    <td>txn: <input size=64 id='txnid'></td>
+    <td><button onclick='loadtxn(this)'>Load</button>
+    </tr>
+</table>
+<table id=hexdump>
+</table>
+    </body>
+</html>
+
