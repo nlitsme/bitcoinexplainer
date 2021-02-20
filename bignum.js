@@ -91,9 +91,12 @@ function modexp(a, b, m)
     var r = numone(a);
     while (b) {
         [bit, b] = numshr(b);
-        if (bit)
+        if (bit) {
             r *= a;
-        a *= a;  a %= m;
+            r %= m;
+        }
+        a *= a;
+        a %= m;
     }
     return r % m;
 }
