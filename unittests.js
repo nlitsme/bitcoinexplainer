@@ -61,7 +61,10 @@ function runtests()
     CHECK("(.19) 111.cubert(2)==419", F.value(111).cubert(2), F.value(419));
 
     var F = new GaloisField(947);
-    console.log(F.p, F.value(274).square(), F.value(673).square(), F.value(275).square());
+    CHECK("(.x) 263.pow(0)==1", F.value(263).pow(0), F.value(1));
+    CHECK("(.x) 263.pow(1)==263", F.value(263).pow(1), F.value(263));
+    CHECK("(.x) 263.pow(2)==38", F.value(263).pow(2), F.value(38));
+    CHECK("(.x) 263.pow(237)==274", F.value(263).pow(237), F.value(274));
     CHECK("(.x) 263.sqrt(0)==274", F.value(263).sqrt(0), F.value(274));
     CHECK("(.x) 263.sqrt(1)==673", F.value(263).sqrt(1), F.value(673));
     CHECK("(.x) 684.sqrt(0)==undef", F.value(684).sqrt(0)==undefined);
