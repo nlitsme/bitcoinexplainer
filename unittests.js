@@ -1,6 +1,7 @@
 function runtests()
 {
-    CHECK("start");
+    print(el('p'));
+    print("start");
     CHECK("GCD(123, 996)", GCD(123, 996), [3, 81, -10]);
     CHECK("GCD(126, 996)", GCD(126, 996), [6, -79, 10]);
     CHECK("GCD(996, 126)", GCD(996, 126), [6, 10, -79]);
@@ -61,6 +62,7 @@ function runtests()
     CHECK("(.19) 111.cubert(2)==419", F.value(111).cubert(2), F.value(419));
 
     var F = new GaloisField(947);
+    var val947 = F.value(263);
     CHECK("(.x) 263.pow(0)==1", F.value(263).pow(0), F.value(1));
     CHECK("(.x) 263.pow(1)==263", F.value(263).pow(1), F.value(263));
     CHECK("(.x) 263.pow(2)==38", F.value(263).pow(2), F.value(38));
@@ -70,6 +72,7 @@ function runtests()
     CHECK("(.x) 684.sqrt(0)==undef", F.value(684).sqrt(0)==undefined);
 
     var F = new GaloisField(967);
+    CHECK("F.val(val947).p = 967", F.value(val947).field.p, F.p);
     CHECK("(.4) 118.cubert(0)==877", F.value(118).cubert(0), F.value(877));
     CHECK("(.4) 118.cubert(1)==758", F.value(118).cubert(1), F.value(758));
     CHECK("(.4) 118.cubert(2)==299", F.value(118).cubert(2), F.value(299));
@@ -108,7 +111,7 @@ function runtests()
     var E = new EllipticCurve(F, 0n, 7n);
     CHECK("(131n,94n)*2n==(630n,721n)", E.point(131n , 94n).mul(2n), E.point(630n, 721n));
 
-    CHECK("done");
+    print("done", el('br'));
 
     STATS();
 }
