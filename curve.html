@@ -1,33 +1,34 @@
 <html>
-    <head>
-        <meta charset=utf-8 />
-        <script src="bignum.js"></script>
-        <script src="gfp.js"></script>
-        <script src="ec.js"></script>
-        <script src="ecdsa.js"></script>
-        <script src="utils.js"></script>
-        <script src="jsutils.js"></script>
+<head>
+<title>Graphs of small elliptic curves</title>
+    <style>
+    .w50 { width:100px; display: inline-block; }
+    </style>
+<meta charset=utf-8 />
+<meta http-equiv=“Pragma” content=”no-cache”>
+<meta http-equiv=“Expires” content=”-1″>
+<meta http-equiv=“CACHE-CONTROL” content=”NO-CACHE”>
+
+<meta name="keywords" content="ellipticcurve,example,calculations,math">
+<meta name="author" content="Willem Hengeveld, itsme@xs4all.nl">
+<meta name="description" content="Graphs of small elliptic curves.">
+
+<script src="bignum.js"></script>
+<script src="primes.js"></script>
+<script src="gfp.js"></script>
+<script src="ec.js"></script>
+<script src="ecdsa.js"></script>
+<script src="utils.js"></script>
+<script src="jsutils.js"></script>
 <script language=javascript>
 
-// a short list of prime numbers.
-var primelist = [
-2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
-79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157,
-163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241,
-251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347,
-349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439,
-443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547,
-557, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643,
-647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719, 727, 733, 739, 743, 751,
-757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859,
-863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977,
-983, 991, 997 ];
 
 var g_p; var g_a; var g_b;  // the curve parameters.
 
 var ec;         // the curve.
 
-var curvepoints; // the list of all points on the curve.
+var curvepoints = []; // the list of all points on the curve.
+var g_mouse_point;  // selected with 'mouse-over'
 var g_start;     // the starting point, selected by hovering over the grid.
 var g_nrlines=10;   // how many lines to draw from the starting point
 var pointlookup = {};
@@ -35,15 +36,27 @@ var pointlookup = {};
 function loadec(p, a, b)
 {
     var F = new GaloisField(p);
-    ec = new EllipticCurve(F, a, b);
-    calcpoints();
+    var newec = new EllipticCurve(F, a, b);
+    if (!ec || !ec.equalscurve(newec)) {
+        g_start = undefined;
+        curvepoints = [];
+        pointlookup = {};
+        if (ec)
+        console.log("curve changed", ec.field.p, ec.a, ec.b, " -> ", newec.field.p, newec.a, newec.b);
+        ec = newec;
+        calcpoints();
+    }
+    else if (g_mouse_point) {
+        g_start = g_mouse_point;
+        console.log("using mouse point");
+    }
     drawgrid();
     drawpath();
     //loadpoints();
 }
 function calcpoints()
 {
-    curvepoints = [];
+    curvepoints = [ec.infinity()];
     for (var x = 0 ; x<g_p ; x++)
     {
         var ysquared = x*x*x+g_a*x+g_b;
@@ -56,13 +69,15 @@ function calcpoints()
                 curvepoints.push(ec.point(x, y1));
         }
     }
-    //g_start = curvepoints[Math.floor(curvepoints.length/2)];
+    g_start = curvepoints[Math.floor(curvepoints.length/2)];
 
     for (var pt of curvepoints)
         pointlookup[indexkey(pt)] = pt;
 }
 function indexkey(p)
 {
+    if (p.isinf())
+        return "(*,*)";
     return "("+Math.round(p.x.uint()/5).toString(10)+","+Math.round(p.y.uint()/5).toString(10)+")";
 }
 function findpoint(x, y)
@@ -72,15 +87,19 @@ function findpoint(x, y)
 }
 function drawpoint(ctx, pt)
 {
+    if (pt.isinf())
+        return;
     ctx.fillRect(pt.x.uint()-1, pt.y.uint()-1, 3, 3);
 }
 function startline(ctx, p)
 {
+    if (p.isinf())
+        return;
     ctx.moveTo(p.x.uint(), p.y.uint());
 }
 function drawlineto(ctx, p)
 {
-    if (typeof(p.x)=="undefined")
+    if (p.isinf())
         return;
     ctx.lineTo(p.x.uint(), p.y.uint());
 }
@@ -103,6 +122,8 @@ function drawgrid()
 function drawpath()
 {
     if (!g_start) return;
+    if (!ec.isoncurve(g_start))
+        console.log("g_start is not on curve");
 
     var canvas = document.getElementById("points");
     var ctx = canvas.getContext("2d")
@@ -110,11 +131,15 @@ function drawpath()
     ctx.beginPath();
     
     var p = g_start;
-    startline(ctx, g_start);
+    startline(ctx, p);
     for (var i=0 ; i<g_nrlines ; i++)
     {
         p = p.add(g_start);
         drawlineto(ctx, p);
+        if (p.equals(g_start)) {
+            set_cycle_length(i);
+            break;
+        }
     }
     ctx.stroke();
 }
@@ -129,11 +154,12 @@ function loadpoints()
 function update()
 {
     loadec(g_p, g_a, g_b);
+    set_ab_check((4*g_a**3+27*g_b**2)%g_p);
 }
 function makesliders()
 {
     return [
-        makeslider("prime:", "prime", 0, primelist.length-1, Math.round(primelist.length/5), t => { g_p = primelist[Number(t)]; }, ()=>g_p),
+        makeslider("prime:", "prime", 0, 200, 30, t => { g_p = primelist[Number(t)]; }, ()=>g_p),
         makeslider("a:", "a", -16, 16, 0, t=>{ g_a = Number(t); }, ()=>g_a),
         makeslider("b:", "b", -16, 16, 7, t=>{ g_b = Number(t); }, ()=>g_b),
         makeslider("nlines:", "n", 0, 1000, 10, t=>{ g_nrlines = Number(t); }, ()=>g_nrlines),
@@ -148,7 +174,7 @@ function start()
     fp.onmousemove = function(e) {
             var pt = findpoint(e.offsetX, e.offsetY);
             if (pt) {
-                g_start = pt;
+                g_mouse_point = pt;
                 update();
             }
         };
@@ -158,16 +184,42 @@ function start()
 function setnrpoints(n)
 {
     var av =document.getElementById("order.value"); 
+    if (primelist.indexOf(n)>=0)
+        av.innerHTML = n + " (prime)";
+    else
+        av.innerHTML = n;
+}
+function set_cycle_length(n)
+{
+    var av =document.getElementById("cycle.value"); 
     av.innerHTML = n;
 }
+function set_ab_check(n)
+{
+    var av =document.getElementById("abcheck.value"); 
+    av.innerHTML = n;
+}
+
 
 </script>
     </head>
     <body onLoad="start()">
-<a href="bitcoincrack.html">crack demo</a> <a href="curve.html">curve demo</a> <a href="unittest.html">unittest</a>
+Menu:
+  <a href="ecdsacrack.html">crack demo</a> 
+  <a href="curve.html">curve demo</a> 
+  <a href="transaction.html">bitcoin transaction</a> 
+  <a href="unittest.html">unittest</a>,
+Author: <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>
+<p>
+This demonstrates what a finite field elliptic curve looks like.<br>
+The curve formula is: <code>y<sup>2</sup> = x<sup>3</sup> + a x + b</code>. The 'ab-check' should be non-zero for a valid curve.
+The lines are generated by starting at an arbitrary point, and keep adding it to itself.
+
 <div id="controlsdiv"></div>
 <div>
-<span>order:</span> <span id="order.value"></span>
+<span>order:</span> <span class=w50 id="order.value"></span>
+<span>cycle:</span> <span class=w50 id="cycle.value"></span>
+<span>ab-check:</span> <span class=w50 id="abcheck.value"></span>
 </div>
 
 <table>
