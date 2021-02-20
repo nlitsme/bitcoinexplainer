@@ -1,3 +1,13 @@
+/*
+    This file provides objects which can decode and encode bitcoin transactions
+    Each has the following methods:
+     * load  - load from a BitcoinReader object.
+     * save  - write to a BitcoinWriter object
+     * hexdump - return a formatted hexdump of the object.
+*/
+
+
+// this represents a single bitcoin input.
 class Input {
     constructor(rd) { this.load(rd); }
     load(rd)
@@ -37,6 +47,8 @@ class Input {
         return hex;
     }
 };
+
+// this represents a single witness for an input.
 class Witness {
     constructor(rd) { this.load(rd); }
     load(rd)
@@ -70,6 +82,8 @@ class Witness {
         return lines;
     }
 };
+
+// this represents a single output.
 class Output {
     constructor(rd) { this.load(rd); }
     load(rd)
@@ -102,6 +116,8 @@ class Output {
         return hex;
     }
 };
+
+// this represents a complete bitcoin transaction.
 class Transaction {
     constructor(rd) { this.load(rd); }
     load(rd)

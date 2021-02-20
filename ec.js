@@ -1,3 +1,11 @@
+/*
+    A Weierstrass Elliptic Curve
+
+    y^2 == x^3+x*a+b
+*/
+
+
+/* this class represents a point on the specified curve */
 class Point {
     constructor(curve, x, y)
     {
@@ -16,6 +24,8 @@ class Point {
     equals(rhs) { return this.curve.equals(this, rhs); }
     isoncurve() { return this.curve.isoncurve(this); }
 };
+
+/* this class represents the elliptic curve */
 class EllipticCurve {
     constructor(field, a, b) {
         this.field = field;
@@ -86,7 +96,7 @@ class EllipticCurve {
     div(lhs, rhs) { return this.mul(lhs, rhs.inverse()); } // needs group order.
 
     infinity() { return this.point(undefined, undefined); }
-    // y^2 == x^3+x*a+b
+
     isoncurve(p) { this.checkcurve(p); return p.isinf() || p.y.square().equals(p.x.cube().add(p.x.mul(this.a)).add(this.b)); }
 
     checkcurve(p)

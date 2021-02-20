@@ -1,3 +1,4 @@
+// adding a 'equals' method to all objects.
 Array.prototype.equals = function (array) {
     // if the other array is a falsy value, return
     if (!array)

@@ -1,3 +1,6 @@
+/* functions reading and writing bitcoin data */
+
+// convert hex to bytearray.
 function hextobytes(hex)
 {
     var buf = new Uint8Array(hex.length/2);
@@ -5,6 +8,7 @@ function hextobytes(hex)
         buf[i] = parseInt(hex.substr(i*2, 2), 16);
     return buf;
 }
+// convert a bytearray to hex.
 function bytestohex(buf)
 {
     var hex = "";
@@ -15,6 +19,8 @@ function bytestohex(buf)
     }
     return hex;
 }
+
+// read bitcoin data from a byte-array.
 class BitcoinReader {
     constructor(buf)
     {
@@ -63,7 +69,7 @@ class BitcoinReader {
     }
 };
 
-
+// write bitcoin data to a byte-array.
 class BitcoinWriter {
     constructor()
     {

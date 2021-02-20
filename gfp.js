@@ -1,3 +1,6 @@
+/* Finite field arithmetic */
+
+/* this class represents a value in a finite field */
 class Value {
     constructor(field, num)
     {
@@ -25,6 +28,8 @@ class Value {
     int() { return this.num; }
     uint() { return this.num<0 ? this.num+this.field.p : this.num; }
 };
+
+/* this class represents a finite field */
 class GaloisField {
     constructor(p) { this.p = p; }
 

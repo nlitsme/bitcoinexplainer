@@ -1,3 +1,4 @@
+// This is the bitcoin curve, using javascript bignum integers.
 function secp256k1()
 {
     var f = new GaloisField(2n**256n-2n**32n-977n);
