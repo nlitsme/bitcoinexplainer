@@ -1,34 +1,48 @@
 <html>
-    <head>
-        <meta charset=utf-8 />
-        <script>
-            var output;
-            function print()
-            {
-                output.append(...arguments, el('br'));
-            }
-            function setoutput(id)
-            {
-                output = document.getElementById(id);
-            }
-        </script>
-        <script src="jsutils.js"></script>
-        <script src="bignum.js"></script>
-        <script src="gfp.js"></script>
-        <script src="ec.js"></script>
-        <script src="ecdsa.js"></script>
-        <script src="utils.js"></script>
-        <script src="unittests.js"></script>
-        <script>
-            function start()
-            {
-                setoutput("output");
-                runtests();
-            }
-        </script>
-    </head>
-    <body onLoad="start()">
-<a href="bitcoincrack.html">crack demo</a> <a href="curve.html">curve demo</a> <a href="unittest.html">unittest</a>
+<head>
+<title>Tests for my ecdsa, ec, gfp, and bignum code.</title>
+<meta charset=utf-8 />
+<meta http-equiv=“Pragma” content=”no-cache”>
+<meta http-equiv=“Expires” content=”-1″>
+<meta http-equiv=“CACHE-CONTROL” content=”NO-CACHE”>
+<meta name="keywords" content="bitcoin,ecdsa,math,test">
+<meta name="author" content="Willem Hengeveld, itsme@xs4all.nl">
+<meta name="description" content="Tests for my javascript ecdsa, ec, gfp code.">
+
+<script>
+    var output;
+    function print()
+    {
+        output.append(...arguments, el('br'));
+    }
+    function setoutput(id)
+    {
+        output = document.getElementById(id);
+    }
+</script>
+<script src="jsutils.js"></script>
+<script src="bignum.js"></script>
+<script src="gfp.js"></script>
+<script src="ec.js"></script>
+<script src="ecdsa.js"></script>
+<script src="utils.js"></script>
+<script src="unittests.js"></script>
+<script>
+    function start()
+    {
+        setoutput("output");
+        runtests();
+    }
+</script>
+</head>
+<body onLoad="start()">
+Menu:
+  <a href="ecdsacrack.html">crack demo</a> 
+  <a href="curve.html">curve demo</a> 
+  <a href="transaction.html">bitcoin transaction</a> 
+  <a href="unittest.html">unittest</a>,
+Author: <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>
+
 <div id="output"></div>
 </body>
 </html>
