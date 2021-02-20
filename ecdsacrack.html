@@ -1,0 +1,308 @@
+<html>
+<head>
+<title>Bitcoin elliptic curve calculations</title>
+<meta charset=utf-8 />
+<meta http-equiv=“Pragma” content=”no-cache”>
+<meta http-equiv=“Expires” content=”-1″>
+<meta http-equiv=“CACHE-CONTROL” content=”NO-CACHE”>
+
+<meta name="keywords" content="bitcoin,ecdsa,example,calculations,math">
+<meta name="author" content="Willem Hengeveld, itsme@xs4all.nl">
+<meta name="description" content="Examples of several ECDSA calculations.">
+<style>
+    h2 { background-color: lightgreen; }
+</style>
+<script src="bignum.js"></script>
+<script src="gfp.js"></script>
+<script src="ec.js"></script>
+<script src="ecdsa.js"></script>
+<script src="utils.js"></script>
+<script src="bccurve.js"></script>
+<script language=javascript>
+
+var example = {
+    k:  "bc614e",
+    x:  "51c4dba2c28fc89b208550477a514c87f9d0db0354f03b7c61f08c0a0e3118a2",
+
+    px: "bb6c1de01f36618ae05f7c183c22dfa8797e779f39537752c27e2dc045b0e694",
+    py: "2f8af53270bf045f2258834b6dad7481ad6fca009d80f5b54697b08d104fc7b3",
+
+    r:  "cabc3692f1f7ba75a8572dc5d270b35bcc00650534f6e5ecd6338e55355454d5",
+    s1: "f65bfc44435a91814c142a3b8ee288a9183e6a3f012b84545d1fe334ccfac25e",
+    m1: "9b076ad2fe6b2ce63acf4edf7fc82d5152d3c8bffb36b944da7a1cce038f544a",
+
+    s2: "9cae782a191f3e742d9d4ff8f726d097a3a256af9fbc1faf16e7ec4d9fcf6feb",
+    m2: "85e43d48a83d8713a0fe253bf6b1fc70b8ee780e54749dc500f2880b056c4383",
+};
+var B = secp256k1();
+function setvalue(base, id, value)
+{
+    var av = base.querySelector("#"+id); 
+    av.value = value;
+    av.innerHTML = value;
+}
+function getnumber(base, id)
+{
+    var av = base.querySelector("#"+id); 
+    var val = av.value;
+    if (!val.startsWith("0x"))
+        val = "0x" + val;
+    return B.scalar(BigInt(val));
+}
+
+function load_crack2()
+{
+    var tab = document.getElementById("crack2");
+    setvalue(tab, "r",  example.r);
+    setvalue(tab, "m1", example.m1);
+    setvalue(tab, "s1", example.s1);
+    setvalue(tab, "m2", example.m2);
+    setvalue(tab, "s2", example.s2);
+}
+
+function do_crack2()
+{
+    var tab = document.getElementById("crack2");
+    var r = getnumber(tab, "r");
+    var m1 = getnumber(tab, "m1");
+    var m2 = getnumber(tab, "m2");
+    var s1 = getnumber(tab, "s1");
+    var s2 = getnumber(tab, "s2");
+
+    var [k, x] = B.crack2(r, m1, m2, s1, s2);
+    setvalue(tab, "k", k.uint().toString(16));
+    setvalue(tab, "x", x.uint().toString(16));
+}
+
+
+function load_crack1()
+{
+    var tab = document.getElementById("crack1");
+    setvalue(tab, "k", example.k);
+    setvalue(tab, "s", example.s1);
+    setvalue(tab, "m", example.m1);
+}
+
+function do_crack1()
+{
+    var tab = document.getElementById("crack1");
+    var k = getnumber(tab, "k");
+    var m = getnumber(tab, "m");
+    var s = getnumber(tab, "s");
+
+    var x = B.crack1(k, m, s);
+    setvalue(tab, "x", x.uint().toString(16));
+}
+
+function load_calcpub()
+{
+    var tab = document.getElementById("calcpub");
+    setvalue(tab, "x", example.x);
+}
+
+function do_calcpub()
+{
+    var tab = document.getElementById("calcpub");
+    var x = getnumber(tab, "x");
+    var p = B.calcpub(x);
+    setvalue(tab, "px", p.x.uint().toString(16));
+    setvalue(tab, "py", p.y.uint().toString(16));
+}
+
+function load_calcsig()
+{
+    var tab = document.getElementById("calcsig");
+    setvalue(tab, "k", example.k);
+    setvalue(tab, "x", example.x);
+    setvalue(tab, "m", example.m1);
+}
+function do_calcsig()
+{
+    var tab = document.getElementById("calcsig");
+    var x = getnumber(tab, "x");
+    var k = getnumber(tab, "k");
+    var m = getnumber(tab, "m");
+
+    var [r, s] = B.sign(m, x, k);
+    setvalue(tab, "r", r.uint().toString(16));
+    setvalue(tab, "s", s.uint().toString(16));
+}
+
+function load_verifysig()
+{
+    var tab = document.getElementById("verifysig");
+    setvalue(tab, "m", example.m1);
+    setvalue(tab, "r", example.r);
+    setvalue(tab, "s", example.s1);
+    setvalue(tab, "px", example.px);
+    setvalue(tab, "py", example.py);
+}
+function do_verifysig()
+{
+    var tab = document.getElementById("verifysig");
+    var r = getnumber(tab, "r");
+    var s = getnumber(tab, "s");
+    var m = getnumber(tab, "m");
+    var px = getnumber(tab, "px");
+    var py = getnumber(tab, "py");
+
+    var Y = B.ec.point(px, py);
+    var ok = B.verify(m, Y, r, s);
+    setvalue(tab, "result", ok ? "ok" : "invalid");
+}
+function start()
+{
+}
+</script>
+</script>
+    </head>
+    <body onLoad="start()">
+Menu:
+  <a href="ecdsacrack.html">crack demo</a> 
+  <a href="curve.html">curve demo</a> 
+  <a href="transaction.html">bitcoin transaction</a> 
+  <a href="unittest.html">unittest</a>,
+Author: <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>
+<br>
+<br>
+Several example calculations with the bitcoin parameters. In these calculations the following parameters are used:
+<ul>
+    <li>p - the curve base prime field, this is used for calculations involving coordinates.</li>
+    <li>G - the fixed generator point</li>
+    <li>n - the curve group order, this is the total number of points.</li>
+    <li>x - the secret key, a value between 0 and the group order</li>
+    <li>k - the signing secret, a value between 0 and the group order</li>
+    <li>px, py - the coordinates of the public key point, values between 0 and the coordinate order</li>
+    <li>r - the first part of the signature, a value between 0 and the coordinate order</li>
+    <li>s - the first part of the signature, a value between 0 and the group order</li>
+    <li>m - the message, a value between 0 and the group order</li>
+    <li>Y - the public key</li>
+</ul>
+Note that in bitcoin calculations the message is the hash of the prepared transaction.<br>
+Also note that in bitcoin the s value is required to be between 0 and half the group order, you have to take the negative when it is larger.<br>
+
+<p>
+<h2>Example, cracking a key using secret-reuse</h2>
+The calculation is: <pre> k = (m1-m2)/(s1-s2) </pre>
+And then calculate x in the same way as in the next example.
+<p>
+<table id=crack2>
+    <tr>
+        <td>r: <input size=64 id='r'></td>
+        <td><button onclick='do_crack2()'>Do Crack</button>
+            <button onclick='load_crack2()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>m1: <input size=64 id='m1'></td>
+        <td>s1: <input size=64 id='s1'></td>
+    </tr>
+    <tr>
+        <td>m2: <input size=64 id='m2'></td>
+        <td>s2: <input size=64 id='s2'></td>
+    </tr>
+    <tr>
+        <td>
+        k: <span id='k'></span>
+        </td>
+        <td>
+        x: <span id='x'></span>
+        </td>
+    </tr>
+</table>
+
+<p>
+<h2>Example, cracking a key using known secret</h2>
+
+<pre>x = (s*k-m)/r</pre>
+
+<table id=crack1>
+    <tr>
+        <td>k: <input size=64 id='k'></td>
+        <td><button onclick='do_crack1()'>Do Crack</button>
+            <button onclick='load_crack1()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>s: <input size=64 id='s'></td>
+        <td>m: <input size=64 id='m'></td>
+    </tr>
+    <tr>
+        <td>
+        x: <span id='x'></span>
+        </td>
+    </tr>
+</table>
+
+<p>
+<h2>Example, calculate a public key</h2>
+<pre>Y = G * x</pre>
+<table id=calcpub>
+    <tr>
+        <td>x: <input size=64 id='x'></td>
+        <td><button onclick='do_calcpub()'>Calc pub</button>
+            <button onclick='load_calcpub()'>Load example</button></td>
+    </tr>
+    <tr>
+        <td>
+        px: <span id='px'></span>
+        </td>
+        <td>
+        py: <span id='py'></span>
+        </td>
+    </tr>
+</table>
+
+<p>
+<h2>Example, sign a message with a secret key</h2>
+<pre>r = xcoord(G*k),  s = (m+x*r)/k</pre>
+<table id=calcsig>
+    <tr>
+        <td>x: <input size=64 id='x'></td>
+        <td>k: <input size=64 id='k'></td>
+    </tr>
+    <tr>
+        <td>m: <input size=64 id='m'></td>
+        <td><button onclick='do_calcsig()'>Calc sig</button>
+            <button onclick='load_calcsig()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>
+        r: <span id='r'></span>
+        </td>
+        <td>
+        s: <span id='s'></span>
+        </td>
+    </tr>
+</table>
+
+<p>
+<h2>Example, verify a message signature.</h2>
+<pre>G*m+Y*r==R*s</pre>
+<table id=verifysig>
+    <tr>
+        <td>px: <input size=64 id='px'></td>
+        <td>py: <input size=64 id='py'></td>
+    </tr>
+    <tr>
+        <td>r: <input size=64 id='r'></td>
+        <td>s: <input size=64 id='s'></td>
+    </tr>
+    <tr>
+        <td>m: <input size=64 id='m'></td>
+        <td><button onclick='do_verifysig()'>Verify sig</button>
+            <button onclick='load_verifysig()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>
+        result: <span id='result'></span>
+        </td>
+    </tr>
+</table>
+
+
+</body>
+</html>
+
