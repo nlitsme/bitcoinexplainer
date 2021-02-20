@@ -31,37 +31,37 @@ function CHECK(desc, a, b)
 
     if (typeof(a) == "undefined")
     {
-        console.log(desc);
+        print(desc);
         return;
     }
     if (typeof(b) == "undefined")
     {
         if (!a) {
-            console.log(desc, ":", a, "== false");
+            print(desc, ":", a, "== false");
             nr_failed++;
         }
         return;
     }
     if (typeof(a) != typeof(b))
     {
-        console.log(desc, ":", typeof(a), "!=", typeof(b));
+        print(desc, ":", typeof(a), "!=", typeof(b));
         nr_failed++;
         return;
     }
     if (typeof(a)=="object")
     {
         if (!a.equals(b)) {
-            console.log(desc, ":", a, "!=", b);
+            print(desc, ":", a, "!=", b);
             nr_failed++;
         }
         return;
     }
     if (a!=b) {
-        console.log(desc, ":", a, "!=", b);
+        print(desc, ":", a, "!=", b);
         nr_failed++;
     }
 }
 function STATS()
 {
-    console.log("total tests: ", nr_checked, ", ", nr_failed, " failed.");
+    print("total tests: ", nr_checked, ", ", nr_failed, " failed.");
 }
