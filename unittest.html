@@ -1,13 +1,34 @@
 <html>
     <head>
         <meta charset=utf-8 />
+        <script>
+            var output;
+            function print()
+            {
+                output.append(...arguments, el('br'));
+            }
+            function setoutput(id)
+            {
+                output = document.getElementById(id);
+            }
+        </script>
+        <script src="jsutils.js"></script>
         <script src="bignum.js"></script>
         <script src="gfp.js"></script>
         <script src="ec.js"></script>
         <script src="ecdsa.js"></script>
         <script src="utils.js"></script>
         <script src="unittests.js"></script>
+        <script>
+            function start()
+            {
+                setoutput("output");
+                runtests();
+            }
+        </script>
     </head>
-    <body onLoad="runtests()">
-    </body>
+    <body onLoad="start()">
+<a href="bitcoincrack.html">crack demo</a> <a href="curve.html">curve demo</a> <a href="unittest.html">unittest</a>
+<div id="output"></div>
+</body>
 </html>
