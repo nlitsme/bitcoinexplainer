@@ -22,6 +22,8 @@ Array.prototype.equals = function (array) {
     return true;
 }
 
+// the functions below are used by my unittests.
+
 var nr_checked = 0;
 var nr_failed = 0;
 
@@ -63,5 +65,5 @@ function CHECK(desc, a, b)
 }
 function STATS()
 {
-    print("total tests: ", nr_checked, ", ", nr_failed, " failed.");
+    print(nr_checked, " tests done, ", nr_failed?nr_failed:"none", " failed.");
 }
