@@ -30,17 +30,25 @@ class GaloisField {
 
     value(x)
     {
-        if (x instanceof Value)
-            return x;
-        return new Value(this, x % this.p);
+        // force x to be of this galois field.
+        return new Value(this, numval(x) % this.p);
     }
-    add(lhs, rhs) { return this.value(numval(lhs)+numval(rhs)); }
-    sub(lhs, rhs) { return this.value(numval(lhs)-numval(rhs)); }
+    add(lhs, rhs) { this.checkfields(lhs, rhs); return this.value(numval(lhs)+numval(rhs)); }
+    sub(lhs, rhs) { this.checkfields(lhs, rhs); return this.value(numval(lhs)-numval(rhs)); }
     neg(a) { return this.value(-numval(a)); }
-    mul(lhs, rhs) { return this.value(numval(lhs)*numval(rhs)); }
+    mul(lhs, rhs) { this.checkfields(lhs, rhs); return this.value(numval(lhs)*numval(rhs)); }
     inverse(a) { return this.value(modinv(numval(a), this.p)); }
-    div(lhs, rhs) { return this.mul(lhs, rhs.inverse()); }
+    div(lhs, rhs) { this.checkfields(lhs, rhs); return this.mul(lhs, rhs.inverse()); }
     pow(lhs, rhs) { return this.value(modexp(numval(lhs), numval(rhs), this.p)); }
+
+    checkfields() {
+        for (var x of arguments)
+            if (x && x.field && x.field.p != this.p)
+            {
+                console.log("incorrect field", x.field.p, this.p);
+                throw "incorrect field";
+            }
+    }
 
     legendre(a) {
         var [_, exp] = numshr(this.p-numone(this.p));
@@ -190,9 +198,14 @@ class GaloisField {
     zero() { return numzero(this.p); } // todo: handle bigint as well.
     iszero(x) { return numval(x)==numzero(this.p); }
 
-    equals(lhs, rhs) { return lhs.sub(rhs).iszero(); }
+    equals(lhs, rhs) { this.checkfields(lhs, rhs); return lhs.sub(rhs).iszero(); }
     shr(x) { 
         var [bit, res] = numshr(numval(x));
         return [bit, this.value(res)];
+    }
+
+    equalsfield(f)
+    {
+        return numequals(this.p, f.p);
     }
 };
