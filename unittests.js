@@ -111,7 +111,15 @@ function runtests()
     var E = new EllipticCurve(F, 0n, 7n);
     CHECK("(131n,94n)*2n==(630n,721n)", E.point(131n , 94n).mul(2n), E.point(630n, 721n));
 
+    // for tests: 907: n=967, 967:n=906, 991: n=1009
+    var F = new GaloisField(991);
+    var E = new EllipticCurve(F, 0, 7);
+    CHECK("decomp(1,0) = (1,840)", E.decompress(F.value(1), 0), E.point(1, 840));
+    CHECK("decomp(1,1) = (1,151)", E.decompress(F.value(1), 1), E.point(1, 151));
     print("done", el('br'));
 
+    var B = secp256k1();
+    CHECK("decomp(g.x,0) = G", B.ec.decompress(B.G.x, 0), B.G);
+    CHECK("decomp(g.x,1) = G", B.ec.decompress(B.G.x, 1), B.G.neg());
     STATS();
 }
