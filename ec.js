@@ -42,6 +42,21 @@ class EllipticCurve {
             return new Point(this, undefined, undefined);
         return new Point(this, this.coord(x), this.coord(y));
     }
+    decompress(x, flag)
+    {
+        var y2 = x.cube().add(x.mul(this.a)).add(this.b);
+        return this.point(x, y2.sqrt(flag));
+    }
+    ydecompress(y, flag)
+    {
+        if (!numiszero(this.a)) {
+            console.log("ydecompress only works for curves where a==0");
+            return;
+        }
+        var x = y.square().sub(this.b).cubert(flag);
+        return this.point(x, y);
+    }
+
     // changes 'x' to be of galois field 'p'
     coord(x) { return this.field.value(x); }
     add(lhs, rhs)
