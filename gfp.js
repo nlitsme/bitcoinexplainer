@@ -131,7 +131,6 @@ class GaloisField {
             var t = p-two;
             while (numequals(modexp(t, (p-one)/r, p), one))
                 t -= one;
-            //console.log("onemod");
             return modexp(t, (p-one)/r, p);
         }
         function solution(p, root, n)
@@ -140,7 +139,7 @@ class GaloisField {
                 //console.log("first root", root);
                 return root;
             }
-            var g = onemod(p, 3);
+            var g = onemod(p, cvnum(3, p));
             root = root.mul(g);
             if (n==1) {
                 //console.log("second root", root);
