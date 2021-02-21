@@ -104,9 +104,9 @@ function do_calcpub()
 {
     var tab = document.getElementById("calcpub");
     var x = getnumber(tab, "x");
-    var p = B.calcpub(x);
-    setvalue(tab, "px", p.x.uint().toString(16));
-    setvalue(tab, "py", p.y.uint().toString(16));
+    var Y = B.calcpub(x);
+    setvalue(tab, "px", Y.x.uint().toString(16));
+    setvalue(tab, "py", Y.y.uint().toString(16));
 }
 
 function load_calcsig()
@@ -150,6 +150,140 @@ function do_verifysig()
     var ok = B.verify(m, Y, r, s);
     setvalue(tab, "result", ok ? "ok" : "invalid");
 }
+function load_findpk()
+{
+    var tab = document.getElementById("findpk");
+    setvalue(tab, "m", example.m1);
+    setvalue(tab, "r", example.r);
+    setvalue(tab, "s", example.s1);
+}
+function do_findpk()
+{
+    var tab = document.getElementById("findpk");
+    var m = getnumber(tab, "m");
+    var r = getnumber(tab, "r");
+    var s = getnumber(tab, "s");
+
+    var Y = B.findpk(m, r, s, 0);
+    setvalue(tab, "px0", Y.x.uint().toString(16));
+    setvalue(tab, "py0", Y.y.uint().toString(16));
+
+    var Y = B.findpk(m, r, s, 1);
+    setvalue(tab, "px1", Y.x.uint().toString(16));
+    setvalue(tab, "py1", Y.y.uint().toString(16));
+}
+function load_findk()
+{
+    var tab = document.getElementById("findk");
+    setvalue(tab, "x", example.x);
+    setvalue(tab, "m", example.m1);
+    setvalue(tab, "r", example.r);
+    setvalue(tab, "s", example.s1);
+}
+function do_findk()
+{
+    var tab = document.getElementById("findk");
+    var x = getnumber(tab, "x");
+    var m = getnumber(tab, "m");
+    var r = getnumber(tab, "r");
+    var s = getnumber(tab, "s");
+
+    var k = B.findk(m, x, r, s);
+    setvalue(tab, "k", k.uint().toString(16));
+}
+function load_add()
+{
+    var tab = document.getElementById("addpt");
+    setvalue(tab, "x1", B.G.x.uint().toString(16));
+    setvalue(tab, "y1", B.G.y.uint().toString(16));
+    var BB = B.G.mul(B.scalar(BigInt("0x"+example.x)));
+    setvalue(tab, "x2", BB.x.uint().toString(16));
+    setvalue(tab, "y2", BB.y.uint().toString(16));
+}
+function do_add()
+{
+    var tab = document.getElementById("addpt");
+    var x1 = getnumber(tab, "x1");
+    var y1 = getnumber(tab, "y1");
+    var x2 = getnumber(tab, "x2");
+    var y2 = getnumber(tab, "y2");
+
+    var C = B.ec.point(x1,y1).add(B.ec.point(x2,y2));
+    setvalue(tab, "x3", C.x.uint().toString(16));
+    setvalue(tab, "y3", C.y.uint().toString(16));
+}
+function load_mul()
+{
+    var tab = document.getElementById("mulpt");
+    setvalue(tab, "x1", B.G.x.uint().toString(16));
+    setvalue(tab, "y1", B.G.y.uint().toString(16));
+    setvalue(tab, "a", example.x);
+}
+function do_mul()
+{
+    var tab = document.getElementById("mulpt");
+    var x1 = getnumber(tab, "x1");
+    var y1 = getnumber(tab, "y1");
+    var a = getnumber(tab, "a");
+
+    var C = B.ec.point(x1,y1).mul(B.scalar(a));
+    setvalue(tab, "x2", C.x.uint().toString(16));
+    setvalue(tab, "y2", C.y.uint().toString(16));
+}
+function load_div()
+{
+    var tab = document.getElementById("divpt");
+    setvalue(tab, "x1", B.G.x.uint().toString(16));
+    setvalue(tab, "y1", B.G.y.uint().toString(16));
+    setvalue(tab, "a", example.x);
+}
+function do_div()
+{
+    var tab = document.getElementById("divpt");
+    var x1 = getnumber(tab, "x1");
+    var y1 = getnumber(tab, "y1");
+    var a = getnumber(tab, "a");
+
+    var C = B.ec.point(x1,y1).div(B.scalar(a));
+    setvalue(tab, "x2", C.x.uint().toString(16));
+    setvalue(tab, "y2", C.y.uint().toString(16));
+}
+
+function load_decompx()
+{
+    var tab = document.getElementById("decompx");
+    setvalue(tab, "x", B.G.x.uint().toString(16));
+}
+function do_decompx()
+{
+    var tab = document.getElementById("decompx");
+    var x = getnumber(tab, "x");
+
+    var X0 = B.ec.decompress(B.ec.coord(x), 0);
+    var X1 = B.ec.decompress(B.ec.coord(x), 1);
+    setvalue(tab, "y0", X0.y.uint().toString(16));
+    setvalue(tab, "y1", X1.y.uint().toString(16));
+}
+function load_decompy()
+{
+    var tab = document.getElementById("decompy");
+    setvalue(tab, "y", B.G.y.uint().toString(16));
+}
+function do_decompy()
+{
+    var tab = document.getElementById("decompy");
+    var y = getnumber(tab, "y");
+    y = B.ec.coord(y);
+
+    var X0 = B.ec.ydecompress(B.ec.coord(y), 0);
+    var X1 = B.ec.ydecompress(B.ec.coord(y), 1);
+    var X2 = B.ec.ydecompress(B.ec.coord(y), 2);
+    setvalue(tab, "x0", X0.x.uint().toString(16));
+    setvalue(tab, "x1", X1.x.uint().toString(16));
+    setvalue(tab, "x2", X2.x.uint().toString(16));
+}
+
+
 function start()
 {
 }
@@ -202,20 +336,14 @@ And then calculate x in the same way as in the next example.
         <td>s2: <input size=64 id='s2'></td>
     </tr>
     <tr>
-        <td>
-        k: <span id='k'></span>
-        </td>
-        <td>
-        x: <span id='x'></span>
-        </td>
+        <td>k: <span id='k'></span></td>
+        <td>x: <span id='x'></span></td>
     </tr>
 </table>
 
 <p>
 <h2>Example, cracking a key using known secret</h2>
-
 <pre>x = (s*k-m)/r</pre>
-
 <table id=crack1>
     <tr>
         <td>k: <input size=64 id='k'></td>
@@ -228,9 +356,7 @@ And then calculate x in the same way as in the next example.
         <td>m: <input size=64 id='m'></td>
     </tr>
     <tr>
-        <td>
-        x: <span id='x'></span>
-        </td>
+        <td>x: <span id='x'></span></td>
     </tr>
 </table>
 
@@ -244,12 +370,8 @@ And then calculate x in the same way as in the next example.
             <button onclick='load_calcpub()'>Load example</button></td>
     </tr>
     <tr>
-        <td>
-        px: <span id='px'></span>
-        </td>
-        <td>
-        py: <span id='py'></span>
-        </td>
+        <td>px: <span id='px'></span></td>
+        <td>py: <span id='py'></span></td>
     </tr>
 </table>
 
@@ -268,12 +390,8 @@ And then calculate x in the same way as in the next example.
         </td>
     </tr>
     <tr>
-        <td>
-        r: <span id='r'></span>
-        </td>
-        <td>
-        s: <span id='s'></span>
-        </td>
+        <td>r: <span id='r'></span></td>
+        <td>s: <span id='s'></span></td>
     </tr>
 </table>
 
@@ -296,12 +414,152 @@ And then calculate x in the same way as in the next example.
         </td>
     </tr>
     <tr>
-        <td>
-        result: <span id='result'></span>
-        </td>
+        <td>result: <span id='result'></span></td>
     </tr>
 </table>
 
+<p>
+<h2>Example, find pubkey.</h2>
+<pre>Y = (R*s-G*m)/r</pre>
+<table id=findpk>
+    <tr>
+        <td>r: <input size=64 id='r'></td>
+        <td>s: <input size=64 id='s'></td>
+    </tr>
+    <tr>
+        <td>m: <input size=64 id='m'></td>
+        <td><button onclick='do_findpk()'>Find Pubkey</button>
+            <button onclick='load_findpk()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>px: <span id='px0'></span></td>
+        <td>py: <span id='py0'></span></td>
+    </tr>
+    <tr>
+        <td>px: <span id='px1'></span></td>
+        <td>py: <span id='py1'></span></td>
+    </tr>
+</table>
+
+<p>
+<h2>Example, find signing secret.</h2>
+<pre>k = (m+x*r)/s</pre>
+<table id=findk>
+    <tr>
+        <td>r: <input size=64 id='r'></td>
+        <td>s: <input size=64 id='s'></td>
+    </tr>
+    <tr>
+        <td>x: <input size=64 id='x'></td>
+    </tr>
+    <tr>
+        <td>m: <input size=64 id='m'></td>
+        <td><button onclick='do_findk()'>Find secret</button>
+            <button onclick='load_findk()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>k: <span id='k'></span></td>
+    </tr>
+</table>
+
+<p>
+<h2>Example, add points.</h2>
+<table id=addpt>
+    <tr>
+        <td>x: <input size=64 id='x1'></td>
+        <td>y: <input size=64 id='y1'></td>
+    </tr>
+    <tr>
+        <td>x: <input size=64 id='x2'></td>
+        <td>y: <input size=64 id='y2'></td>
+    </tr>
+    <tr>
+        <td><button onclick='do_add()'>add</button>
+            <button onclick='load_add()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>x: <input size=64 id='x3'></td>
+        <td>y: <input size=64 id='y3'></td>
+    </tr>
+</table>
+
+<p>
+<h2>Example, multiply point by a number.</h2>
+<table id=mulpt>
+    <tr>
+        <td>x: <input size=64 id='x1'></td>
+        <td>y: <input size=64 id='y1'></td>
+    </tr>
+    <tr>
+        <td>a: <input size=64 id='a'></td>
+        <td><button onclick='do_mul()'>multiply</button>
+            <button onclick='load_mul()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>x: <input size=64 id='x2'></td>
+        <td>y: <input size=64 id='y2'></td>
+    </tr>
+</table>
+
+<p>
+<h2>Example, divide point by a number.</h2>
+<pre>multiply by the modular inverse in GFn</pre>
+<table id=divpt>
+    <tr>
+        <td>x: <input size=64 id='x1'></td>
+        <td>y: <input size=64 id='y1'></td>
+    </tr>
+    <tr>
+        <td>a: <input size=64 id='a'></td>
+        <td><button onclick='do_div()'>divide</button>
+            <button onclick='load_div()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>x: <input size=64 id='x2'></td>
+        <td>y: <input size=64 id='y2'></td>
+    </tr>
+</table>
+
+<p>
+<h2>Decompress a point</h2>
+<pre> y = sqrt(x^3+a*x+b)</pre>
+<table id=decompx>
+    <tr>
+        <td>x: <input size=64 id='x'></td>
+        <td><button onclick='do_decompx()'>decompress</button>
+            <button onclick='load_decompx()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>even</td>
+        <td>y: <input size=64 id='y0'></td>
+    </tr>
+    <tr>
+        <td>odd</td>
+        <td>y: <input size=64 id='y1'></td>
+    </tr>
+</table>
+
+<p>
+<h2>You can decompress from `y` as well.</h2>
+<pre> x = cuberoot(y^2-7)</pre>
+This works, because for the secp256k1 curve, 'a' is zero.
+<table id=decompy>
+    <tr>
+        <td><button onclick='do_decompy()'>decompress</button>
+            <button onclick='load_decompy()'>Load example</button>
+        </td>
+        <td>y: <input size=64 id='y'></td>
+    </tr>
+    <tr> <td>x: <input size=64 id='x0'></td><td>first</td></tr>
+    <tr> <td>x: <input size=64 id='x1'></td><td>second</td></tr>
+    <tr> <td>x: <input size=64 id='x2'></td><td>third</td></tr>
+</table>
 
 </body>
 </html>
