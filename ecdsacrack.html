@@ -283,6 +283,22 @@ function do_decompy()
     setvalue(tab, "x2", X2.x.uint().toString(16));
 }
 
+function load_validatexy()
+{
+    var tab = document.getElementById("validatexy");
+    setvalue(tab, "px", example.px);
+    setvalue(tab, "py", example.py);
+}
+function do_validatexy()
+{
+    var tab = document.getElementById("validatexy");
+    var px = getnumber(tab, "px");
+    var py = getnumber(tab, "py");
+
+    var Y = B.ec.point(px, py);
+    var ok = Y.isoncurve();
+    setvalue(tab, "result", ok ? "ok" : "invalid");
+}
 
 function start()
 {
@@ -481,8 +497,8 @@ And then calculate x in the same way as in the next example.
         </td>
     </tr>
     <tr>
-        <td>x: <input size=64 id='x3'></td>
-        <td>y: <input size=64 id='y3'></td>
+        <td>x: <span id='x3' /></td>
+        <td>y: <span id='y3' /></td>
     </tr>
 </table>
 
@@ -500,8 +516,8 @@ And then calculate x in the same way as in the next example.
         </td>
     </tr>
     <tr>
-        <td>x: <input size=64 id='x2'></td>
-        <td>y: <input size=64 id='y2'></td>
+        <td>x: <span id='x2'/></td>
+        <td>y: <span id='y2'/></td>
     </tr>
 </table>
 
@@ -520,8 +536,8 @@ And then calculate x in the same way as in the next example.
         </td>
     </tr>
     <tr>
-        <td>x: <input size=64 id='x2'></td>
-        <td>y: <input size=64 id='y2'></td>
+        <td>x: <span id='x2'/></td>
+        <td>y: <span id='y2'/></td>
     </tr>
 </table>
 
@@ -537,11 +553,11 @@ And then calculate x in the same way as in the next example.
     </tr>
     <tr>
         <td>even</td>
-        <td>y: <input size=64 id='y0'></td>
+        <td>y: <span id='y0'/></td>
     </tr>
     <tr>
         <td>odd</td>
-        <td>y: <input size=64 id='y1'></td>
+        <td>y: <span id='y1'/></td>
     </tr>
 </table>
 
@@ -556,10 +572,27 @@ This works, because for the secp256k1 curve, 'a' is zero.
         </td>
         <td>y: <input size=64 id='y'></td>
     </tr>
-    <tr> <td>x: <input size=64 id='x0'></td><td>first</td></tr>
-    <tr> <td>x: <input size=64 id='x1'></td><td>second</td></tr>
-    <tr> <td>x: <input size=64 id='x2'></td><td>third</td></tr>
+    <tr> <td>first</td> <td>x: <span id='x0'/></td></tr>
+    <tr> <td>second</td><td>x: <span id='x1'/></td></tr>
+    <tr> <td>third</td> <td>x: <span id='x2'/></td></tr>
 </table>
+
+<p>
+<h2>Validate point.</h2>
+checks that: <pre>y<sup>2</sup> == x<sup>3</sup>+a*x+b</pre>
+<table id=validatexy>
+    <tr>
+        <td><button onclick='do_validatexy()'>validate</button>
+            <button onclick='load_validatexy()'>Load example</button>
+        </td>
+        <td>result: <span id='result'></span></td>
+    </tr>
+    <tr>
+        <td>x: <input size=64 id='px'></td>
+        <td>y: <input size=64 id='py'></td>
+    </tr>
+</table>
+
 
 </body>
 </html>
