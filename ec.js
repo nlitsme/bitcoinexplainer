@@ -45,7 +45,10 @@ class EllipticCurve {
     decompress(x, flag)
     {
         var y2 = x.cube().add(x.mul(this.a)).add(this.b);
-        return this.point(x, y2.sqrt(flag));
+        var y = y2.sqrt(flag);
+        if (!y)
+            throw "no sqrt for x";
+        return this.point(x, y);
     }
     ydecompress(y, flag)
     {
@@ -54,6 +57,8 @@ class EllipticCurve {
             return;
         }
         var x = y.square().sub(this.b).cubert(flag);
+        if (!x)
+            throw "no cubert for y";
         return this.point(x, y);
     }
 
