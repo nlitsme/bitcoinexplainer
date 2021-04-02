@@ -44,7 +44,11 @@ function setvalue(base, id, value)
 function getnumber(base, id)
 {
     var av = base.querySelector("#"+id); 
+    if (!av)
+        throw "invalid selector";
     var val = av.value;
+    if (!val)
+        return B.scalar(BigInt(0));
     if (!val.startsWith("0x"))
         val = "0x" + val;
     return B.scalar(BigInt(val));
