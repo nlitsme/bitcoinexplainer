@@ -1,3 +1,8 @@
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
+// some functions for helping create html tags.
+
 function el()
 {
     // create an html element by tagname, optionally adding children and attributes.

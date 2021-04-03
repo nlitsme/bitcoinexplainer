@@ -1,3 +1,8 @@
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
+// this file contains functions, mostly used by the unittests.
+
 // adding a 'equals' method to all objects.
 Array.prototype.equals = function (array) {
     // if the other array is a falsy value, return

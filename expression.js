@@ -1,4 +1,37 @@
-/* an expression parser */
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
+/*
+ * An expression parser.
+ * parses expressions with:
+ *  - operators: +, -, *, /, ^, **, =
+ *  - values: 0xabcd or 1234 numbers
+ *  - names: starting with a letter.
+ *  - brackets for subexpressions:  3*(4+5)
+ *  - function calls:  sqrt(a, b)
+ *  - bracketed lists: (1, 2)
+ *  - four types of brackets can be used: ([{<>}])
+
+ * use the function `parseexpr` to parse a text string.
+ * then use the function `evaluator` to evaluate the expression tree
+ * given a evaluation context.
+
+ * the evaluation context must contain the following functions:
+ *  class Context {
+ *      add(a, b)   //  a+b
+ *      sub(a, b)   //  a-b
+ *      mul(a, b)   //  a*b
+ *      div(a, b)   //  a/b
+ *      pow(a, b)   //  a^b  or a**b
+ *
+ *      numbervalue(a)   // 0x123  or 456   used to convert the string to a value
+ *      listvalue(t, a)  // (1, 2)          used to convert a list to a value.
+ *      get(name)        // called when using a `name`
+ *      set(name, value) // called when assigning to a variable: name=value
+ * }
+ * And optionally any functions called by name.
+ *
+ */
 
 
 class NumValue  {

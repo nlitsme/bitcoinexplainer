@@ -1,4 +1,8 @@
-/* These functions are intended to make a single codebase work with both the Bignum and Number types in javascript.
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
+/*
+ * These functions are intended to make a single codebase work with both the Bignum and Number types in javascript.
  */
 
 // return the number zero in the same type as 'x'

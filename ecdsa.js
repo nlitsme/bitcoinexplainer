@@ -1,4 +1,19 @@
-/* Elliptic curve Digital Signature Algorithm */
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
+/*
+ * Elliptic curve Digital Signature Algorithm
+ *
+ *  scalar(x)       - convert the number 'x' to a Value in the grouporder field.
+ *  calcpub(x)      - calculate a public key for the private key 'x'
+ *  sign(m, x, k)   - sign message 'm' with privatekey 'x', and signing secret 'k'.
+ *  verify(m, Y, r, s)    - verify the signatue
+ *  crack2(r, m1, m2, s1, s2)  - crack a key for a pair of signatures with re-used 'k' value.
+ *  crack1r(k, m, r, s)   - crack a key, given the signing secret, and 'r' value
+ *  crack1(k, m, s)       - crack a key, given the signing secret.
+ *  findk(m, x, r, s)     - calculate 'k' for a signature and known private key.
+ *  findpk(m, r, s, flag) - find the public key used to create a signature.
+ */
 
 class ECDSA {
     constructor(ec, G)

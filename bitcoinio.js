@@ -1,3 +1,6 @@
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
 /* functions reading and writing bitcoin data */
 
 // convert hex to bytearray.

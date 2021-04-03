@@ -13,3 +13,6 @@
  * message hash calculation
  * add annotations to the hexdump.
 
+# AUTHOR
+
+Willem Hengeveld <itsme@xs4all.nl>

@@ -1,3 +1,6 @@
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
 function runtests()
 {
     print(el('p'));

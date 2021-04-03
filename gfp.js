@@ -1,3 +1,6 @@
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
 /* Finite field arithmetic */
 
 /* this class represents a value in a finite field */

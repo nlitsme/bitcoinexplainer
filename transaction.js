@@ -1,3 +1,6 @@
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
 /*
     This file provides objects which can decode and encode bitcoin transactions
     Each has the following methods:

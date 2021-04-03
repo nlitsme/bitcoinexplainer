@@ -1,3 +1,6 @@
+/* Author: Willem Hengeveld <itsme@xs4all.nl> */
+/* https://github.com/nlitsme/bitcoinexplainer */
+
 // This is the bitcoin curve, using javascript bignum integers.
 function secp256k1()
 {
