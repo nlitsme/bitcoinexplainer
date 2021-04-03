@@ -23,6 +23,8 @@ class Point {
     isinf() { return typeof(this.x) == "undefined"; }
     equals(rhs) { return this.curve.equals(this, rhs); }
     isoncurve() { return this.curve.isoncurve(this); }
+
+    toString() { return "Point("+this.x+", "+this.y+")"; }
 };
 
 /* this class represents the elliptic curve */

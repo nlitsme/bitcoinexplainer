@@ -3,12 +3,15 @@
 
 class NumValue  {
     constructor(value) { this.value = value; }
+    toString() { return "NUM:["+this.value+"]"; }
 };
 class Name  {
     constructor(name) { this.name = name; }
+    toString() { return "NAME:["+this.name+"]"; }
 };
 class Operator  {
     constructor(op) { this.op = op; this.args = []; }
+    toString() { return "OP:["+this.op+":"+this.args.join(", ")+"]"; }
     precedence()
     {
         if (this.op == "+") return 1;
@@ -24,12 +27,17 @@ class Operator  {
 };
 class Bracket {
     constructor(type) { this.type = type; }
+    toString() { return "BRACKET:["+this.type+"]"; }
     isopen() { return "[({<".includes(this.type); }
     isclose() { return "])}>".includes(this.type); }
     closes(t) { return ["[]", "()", "{}", "<>"].includes(t.type+this.type); }
 };
-class Comma { };
-class Whitespace { };
+class Comma {
+    toString() { return "COMMA"; }
+};
+class Whitespace {
+    toString() { return "SPACE"; }
+};
 
 function* tokenizer(txt)
 {
@@ -45,7 +53,7 @@ function* tokenizer(txt)
     ];
     while (p < txt.length)
     {
-        var t;
+        var t = null;
         for (var [cls, pattern] of patterns) {
             pattern.lastIndex = p;
             var m = pattern.exec(txt);
@@ -66,6 +74,7 @@ class ExpressionList {
         this.type = type;
         this.values = values;
     }
+    toString() { return "EXPR:["+this.type+":"+this.values.join(", ")+"]"; }
 };
 class Function {
     constructor(name, args)
@@ -73,6 +82,7 @@ class Function {
         this.name = name;
         this.args = args;
     }
+    toString() { return "FUNC:["+this.name+":"+this.args.join(", ")+"]"; }
 };
 
 
@@ -124,7 +134,9 @@ function brackets(tokens)
     return exprlist[0];
 }
 
-class EmptyList { };
+class EmptyList {
+    toString() { return "EMPTY[]"; }
+};
 
 
 function parse(tokens)

@@ -27,11 +27,19 @@ class Value {
 
     int() { return this.num; }
     uint() { return this.num<0 ? this.num+this.field.p : this.num; }
+
+    toString() { return this.field+":0x"+this.num.toString(16); }
 };
 
 /* this class represents a finite field */
 class GaloisField {
     constructor(p) { this.p = p; }
+    toString() {
+        if ("fieldtag" in this)
+            return this.fieldtag;
+        else
+            return "FIELD(0x"+this.p.toString(16)+")";
+    }
 
     value(x)
     {
