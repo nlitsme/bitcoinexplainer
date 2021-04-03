@@ -1,0 +1,249 @@
+<html>
+<head>
+<title>Elliptic curve calculator</title>
+<meta charset=utf-8 />
+<meta http-equiv=“Pragma” content=”no-cache”>
+<meta http-equiv=“Expires” content=”-1″>
+<meta http-equiv=“CACHE-CONTROL” content=”NO-CACHE”>
+
+<meta name="keywords" content="bitcoin,ecdsa,example,calculations,math">
+<meta name="author" content="Willem Hengeveld, itsme@xs4all.nl">
+<meta name="description" content="Elliptic curve calculator.">
+<style>
+    h2 { background-color: lightgreen; }
+</style>
+<script src="bignum.js"></script>
+<script src="gfp.js"></script>
+<script src="ec.js"></script>
+<script src="ecdsa.js"></script>
+<script src="utils.js"></script>
+<script src="jsutils.js"></script>
+<script src="bccurve.js"></script>
+<script src="expression.js"></script>
+<script language=javascript>
+
+var B = secp256k1();
+function setvalue(base, id, value)
+{
+    var av = base.querySelector("#"+id); 
+    av.value = value;
+    av.innerHTML = value;
+}
+function getnumber(base, id)
+{
+    var av = base.querySelector("#"+id); 
+    if (!av)
+        throw "invalid selector";
+    var val = av.value;
+    if (!val)
+        return B.scalar(BigInt(0));
+    if (!val.startsWith("0x"))
+        val = "0x" + val;
+    return B.scalar(BigInt(val));
+}
+
+
+class ECContext {
+    constructor()
+    {
+        this.constants = { G: B.G, n: B.ec.order.p, p: B.ec.field.p };
+        this.d = {};
+    }
+    add(a, b) { return a.add(b); }
+    sub(a, b) { return a.sub(b); }
+    mul(a, b) {
+        if (b instanceof Point)
+            return b.mul(a);
+        return a.mul(b);
+    }
+    div(a, b) { return a.div(B.scalar(b)); }
+    pow(a, b) { return a.pow(b); }
+    sqrt(a, flag) { return a.sqrt(Number(numval(flag))); }
+    cubert(a, flag) { return a.cubert(Number(numval(flag))); }
+
+    coord(a) { return B.ec.coord(a); }
+    fromx(x, flag) { return B.ec.decompress(B.ec.coord(x), Number(numval(flag))); }
+    fromy(y, flag) { return B.ec.ydecompress(B.ec.coord(y), Number(numval(flag))); }
+
+    numbervalue(a) { return B.scalar(BigInt(a)); }
+    listvalue(t, a) {
+        if (a.length==2 && t=="()")
+            return B.ec.point(a[0], a[1]);
+        throw "value not supported";
+    }
+    get(name) {
+        if (name in this.constants)
+            return this.constants[name];
+        var parts = name.split(".");
+        if (parts.length==2)
+            return this.getfrompage(parts[0], parts[1]);
+
+        if (!(name in this.d))
+            this.d[name] = 0;
+        return this.d[name];
+    }
+    getfrompage(tabname, itemname)
+    {
+        var tab = document.getElementById(tabname);
+        return getnumber(tab, itemname);
+    }
+    set(name, value)
+    {
+        if (name in this.constants) {
+            console.log("cannot change constant");
+            return;
+        }
+        var parts = name.split(".");
+        if (parts.length==2)
+            return this.setinpage(parts[0], parts[1], value);
+
+        this.d[name] = value;
+    }
+    setinpage(tabname, itemname, value)
+    {
+        var tab = document.getElementById(tabname);
+        var txt = null;
+        if (value instanceof Point)
+            txt = value.toString();
+        else if (value instanceof Value)
+            txt = value.toString();
+        else if (value)
+            console.log("unhandled: " ,value);
+
+        if (txt)
+            setvalue(tab, itemname, txt);
+    }
+    // TODO: change naming convention for points, so I can refer to a point like 'divpt.p1' 
+    //  which will then implicitly refer to (divpt.p1.x, divpt.p1.y)
+};
+var CTX = new ECContext();
+function load_freeform()
+{
+    var tab = document.getElementById("freeform");
+    setvalue(tab, "expr", [
+        "fromx(coord(0)-coord(3),0)",
+        "P=fromx(6,1)+fromx(2,0)",
+        "P/2",
+        "1/5"].join("\n"));
+}
+
+function makerow(k, v)
+{
+    var tr = el('tr');
+    tr.append(el('td', k));
+    tr.append(el('td', v));
+    return tr;
+}
+function eval_expr(expr)
+{
+    var e;
+    try {
+        e = parseexpr(expr);
+        console.log(e.toString());
+    }
+    catch(err) {
+        return "Error parsing expression: "+err.toString();
+    }
+
+    var r;
+    try {
+        r = evaluator(e, CTX);
+    }
+    catch(err) {
+        return "Error evaluating expression: "+err.toString();
+    }
+
+    var txt = null;
+    if (r instanceof Point)
+        txt = r.toString();
+    else if (r instanceof Value)
+        txt = r.toString();
+    else if (r)
+        console.log(r);
+
+    return txt;
+}
+function do_freeform()
+{
+    var tab = document.getElementById("freeform");
+    var expr = tab.querySelector("#expr").value;
+
+    var results = [];
+    for (var e of expr.split("\n")) {
+        r = eval_expr(e);
+        if (r)
+            results.push(r);
+    }
+
+    var otab = document.getElementById("output");
+    var bodies = [];
+    if (results) {
+        var tbody = el('tbody');
+        tbody.append(el('tr', el('td', el('hr'))));
+        results.forEach( txt => tbody.append(makerow("result:", txt)));
+        bodies.push(tbody);
+    }
+
+    var tbody = el('tbody');
+    Object.entries(CTX.d).forEach(([k,v])=>{tbody.append(makerow(k, v.toString())); });
+    bodies.push(tbody);
+
+    otab.replaceChildren(...bodies);
+}
+function start()
+{
+}
+</script>
+</script>
+    </head>
+    <body onLoad="start()">
+Menu:
+  <a href="ecdsacrack.html">crack demo</a> 
+  <a href="calculator.html">curve calculator</a> 
+  <a href="curve.html">curve demo</a> 
+  <a href="transaction.html">bitcoin transaction</a> 
+  <a href="unittest.html">unittest</a>,
+Author: <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>
+<br>
+<br>
+Enter any kind of expression to do elliptic curve calculations. one expression per line. You can assign expressions to variables, which will be remembered.
+<br>
+Predefined constants:
+<ul>
+<li><em>G</em> - the generator.
+<li><em>n</em> - the group order. 
+<li><em>p</em> - the curve prime order.
+</ul>
+
+functions:
+<ul>
+<li><em>sqrt</em> - the square root, a number and a flag 0 or 1
+<li><em>cubert</em> - the cube root, takes two params, a number and a flag 0, 1 or 2
+<li><em>coord</em> - force a value to be a coordinate, in the galois field of order <em>p</em>
+<li><em>scalar</em> - force a value to be a coordinate, in the galois field of order <em>n</em>
+<li><em>fromx</em> - 'decompress' a point from a x coord and a flag{0,1}.
+<li><em>fromy</em> - 'decompress' a point from a y coord and a flag{0,1,2}.
+<li><em>(x,y)</em> - a curve point.
+<li><em>1234</em> - a scalar value.
+<li><em>0xabcd</em> - a hexadecimal scalar value.
+</ul>
+
+<p>
+<h2>Free form expressions.</h2>
+<table id=freeform>
+    <tr>
+        <td valign=top>
+            <button onclick='do_freeform()'>calculate</button><br>
+            <button onclick='load_freeform()'>Load example</button><br>
+        </td>
+        <td><textarea rows=10 cols=80 id='expr'></textarea></td>
+    </tr>
+</table>
+<table id=output>
+</table>
+
+
+
+</body>
+</html>
+
