@@ -43,16 +43,39 @@ function start()
     setvalue(tab, "txnid", "7d4036dbc43e3b785cabb22413b67ee6c8a7375ec316c226c29eb10915647988");
 }
 
-function loadtxn(x)
+function loadtxns()
 {
     var tab = document.getElementById("transaction");
     
+    for (var txnid of getvalue(tab, "txnid").split(" ")) {
+        fetch_and_loadtxn(txnid);
+    }
+}
+function fetch_and_loadtxn(txnid)
+{
     // problem with bitcoin.com: it is hours behind.
-    //fetch("https://rest.bitcoin.com/v2/rawtransactions/getRawTransaction/"+getvalue(tab, "txnid")).then(r => r.json()).then(r => processtxn(r));
-    fetch("https://api.blockchair.com/bitcoin/raw/transaction/"+getvalue(tab, "txnid")).then(r => r.json()).then(r => {
-        Object.entries(r.data).forEach( ([k,v])=> { processtxn(v.raw_transaction) });
+    fetch("https://api.blockchair.com/bitcoin/raw/transaction/"+txnid).then(r => r.json()).then(r => {
+        Object.entries(r.data).forEach( ([k,v])=> { hexdumptxn(v.raw_transaction) });
     });
 }
+
+function annotatetxns()
+{
+    var tab = document.getElementById("transaction");
+    
+    for (var txnid of getvalue(tab, "txnid").split(" ")) {
+        fetch_and_annotatetxn(txnid);
+    }
+}
+function fetch_and_annotatetxn(txnid)
+{
+    // problem with bitcoin.com: it is hours behind.
+    fetch("https://api.blockchair.com/bitcoin/raw/transaction/"+txnid).then(r => r.json()).then(r => {
+        Object.entries(r.data).forEach( ([k,v])=> { annotatetxn(v.raw_transaction) });
+    });
+}
+
+
 function makerow(line)
 {
     var tr = el('tr');
@@ -76,11 +99,8 @@ function makeinputrow(line)
     var txnid = maketxnid(hexline.slice(0,64));
 
     var txncode = el('code', hexline.slice(0,64));
-    txncode.addEventListener('click', () => { 
-        fetch("https://api.blockchair.com/bitcoin/raw/transaction/"+txnid).then(r => r.json()).then(r => {
-            Object.entries(r.data).forEach( ([k,v])=> { processtxn(v.raw_transaction) });
-        });
-    });
+    txncode.addEventListener('click', () => { fetch_and_loadtxn(txnid); });
+
     var txnrest = el('code', hexline.slice(64));
 
     tr.append(el('td', txncode, txnrest));
@@ -88,7 +108,7 @@ function makeinputrow(line)
     return tr;
 }
 
-function processtxn(hex)
+function hexdumptxn(hex)
 {
     var r = new BitcoinReader(hextobytes(hex));
     var t = new Transaction(r);
@@ -106,6 +126,51 @@ function processtxn(hex)
             tab.append(makerow(line));
     }
 }
+function insertAfter(newNode, existingNode) {
+    existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+    existingNode.collapsed = false;
+}
+function removeNext(node) {
+    node.parentNode.removeChild(node.nextSibling);
+    node.collapsed = true;
+}
+function makeannotated(children)
+{
+    var dl = el('dl');
+    for (var ch of children) {
+        var dt = el('dt', el('em', ch.tagName), ' ', el('code', ch.textContent));
+        dt.collapsed = true;
+        if (ch.children.length) {
+            dt.subchildren = ch.children;
+            dt.addEventListener('click', (ev) => { 
+                var node = ev.target;
+                while (node && node.tagName != 'DT')
+                    node = node.parentNode;
+                console.log("ev.t.c", ev, node, node.collapsed);
+                if (node.collapsed)
+                    insertAfter(el('dd', makeannotated(node.subchildren)), node);
+                else
+                    removeNext(node);
+            });
+        }
+
+        dl.append(dt);
+    }
+
+    return dl;
+}
+function annotatetxn(hex)
+{
+    var r = new BitcoinReader(hextobytes(hex));
+    var t = new Transaction(r);
+    var tab = document.getElementById("hexdump");
+    tab.append(el('tr', el('td', el('hr'), {colspan:2})));
+
+    var parser = new DOMParser();
+    var xml = parser.parseFromString(t.annotate(), "text/xml");
+    tab.append(makeannotated(xml.firstChild.children));
+}
+
 </script>
     </head>
     <body onLoad="start()">
@@ -124,7 +189,8 @@ You can click on the input txn to follow the chain to the corresponding output.
 <table id=transaction>
     <tr>
     <td>txn: <input size=64 id='txnid'></td>
-    <td><button onclick='loadtxn(this)'>Load</button>
+    <td><button onclick='loadtxns(this)'>Hexdump</button>
+    <td><button onclick='annotatetxns(this)'>Annotate</button>
     </tr>
 </table>
 <table id=hexdump>
