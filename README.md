@@ -1,11 +1,11 @@
 # Several interactive elliptic curve and bitcoin demonstrations.
 
- * [curve playground](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/9068bb16e875b8d35be94c82ad7c5d37db0c09c1/curve.html)
- * [various ECDSA calculations](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/9068bb16e875b8d35be94c82ad7c5d37db0c09c1/ecdsacrack.html)
+ * [curve playground](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/0165c8008266606503b460475dfb1750c2dc6282/curve.html)
+ * [various ECDSA calculations](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/0165c8008266606503b460475dfb1750c2dc6282/ecdsacrack.html)
     * demonstrate calculation of a publickey, also how to crack a key given a re-used signing secret.
- * [calculator](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/9068bb16e875b8d35be94c82ad7c5d37db0c09c1/calculator.html) - a free form expression calculator.
- * [decode transactions](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/9068bb16e875b8d35be94c82ad7c5d37db0c09c1/transaction.html)
- * [run tests](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/9068bb16e875b8d35be94c82ad7c5d37db0c09c1/unittest.html) - used while developing, shows how the code is intended to be used.
+ * [calculator](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/0165c8008266606503b460475dfb1750c2dc6282/calculator.html) - a free form expression calculator.
+ * [decode transactions](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/0165c8008266606503b460475dfb1750c2dc6282/transaction.html)
+ * [run tests](https://rawcdn.githack.com/nlitsme/bitcoinexplainer/0165c8008266606503b460475dfb1750c2dc6282/unittest.html) - used while developing, shows how the code is intended to be used.
 
 
 Note that the javascript code works with both small integers and javascript's bigint numbers.
