@@ -56,18 +56,54 @@ function loadtxn(x)
 function makerow(line)
 {
     var tr = el('tr');
-    for (var e of line) {
-            tr.append(el('td', el('code', e)));
-    }
+    for (var e of line)
+        tr.append(el('td', el('code', e)));
+
     return tr;
 }
+function maketxnid(txnhash)
+{
+    var id = "";
+    for (var i=0 ; i<64 ; i+=2)
+        id += txnhash.slice(62-i, 64-i);
+    return id;
+}
+function makeinputrow(line)
+{
+    var tr = el('tr');
+    tr.append(el('td', el('code', "\t")));
+    var hexline = line[1];
+    var txnid = maketxnid(hexline.slice(0,64));
+
+    var txncode = el('code', hexline.slice(0,64));
+    txncode.addEventListener('click', () => { 
+        fetch("https://api.blockchair.com/bitcoin/raw/transaction/"+txnid).then(r => r.json()).then(r => {
+            Object.entries(r.data).forEach( ([k,v])=> { processtxn(v.raw_transaction) });
+        });
+    });
+    var txnrest = el('code', hexline.slice(64));
+
+    tr.append(el('td', txncode, txnrest));
+
+    return tr;
+}
+
 function processtxn(hex)
 {
     var r = new BitcoinReader(hextobytes(hex));
     var t = new Transaction(r);
     var tab = document.getElementById("hexdump");
+    tab.append(el('tr', el('td', el('hr'), {colspan:2})));
+    var isin = false;
     for (var line of t.hexdump()) {
-        tab.append(makerow(line));
+        if (line.find(a=>a.includes("nr inputs")))
+            isin = true;
+        else if (line.find(a=>a.includes("nr outputs")))
+            isin = false;
+        if (isin && line[0]=="\t")
+            tab.append(makeinputrow(line));
+        else
+            tab.append(makerow(line));
     }
 }
 </script>
@@ -83,6 +119,7 @@ Author: Willem Hengeveld, <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>,
 Source: <a href="https://github.com/nlitsme/bitcoinexplainer">on github</a>.
 <p>
 This demonstrates how bitcoin transactions are structured.
+You can click on the input txn to follow the chain to the corresponding output.
 
 <table id=transaction>
     <tr>

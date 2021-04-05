@@ -31,6 +31,9 @@ class BitcoinReader {
         this.buf = buf;
         this.o = 0;
     }
+    eof() { return this.o >= this.buf.length; }
+    have(n) { return this.o+n <= this.buf.length; }
+    require(n) { if (!this.have(n)) throw "not enough data"; }
     read8()
     {
         return this.buf[this.o++];
@@ -70,6 +73,11 @@ class BitcoinReader {
         var data = this.buf.subarray(this.o, this.o+n);
         this.o += n;
         return data;
+    }
+    // return bytes since position 'p'.
+    since(p)
+    {
+        return this.buf.subarray(p, this.o);
     }
 };
 
