@@ -168,7 +168,7 @@ function annotatetxn(hex)
 
     var parser = new DOMParser();
     var xml = parser.parseFromString(t.annotate(), "text/xml");
-    tab.append(makeannotated(xml.firstChild.children));
+    tab.append(el('tr', el('td', makeannotated(xml.firstChild.children), {colspan:2})));
 }
 
 </script>
