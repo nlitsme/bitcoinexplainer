@@ -1,5 +1,6 @@
 /* Author: Willem Hengeveld <itsme@xs4all.nl> */
 /* https://github.com/nlitsme/bitcoinexplainer */
+"use strict";
 
 /*
  * These functions are intended to make a single codebase work with both the Bignum and Number types in javascript.
@@ -78,7 +79,7 @@ function GCD(a,b)
 // calculate the greatest common divisor.
 function gcd(a,b)
 {
-    [g, _, _] = GCD(a, b);
+    let [g, c, d] = GCD(a, b);
     return g;
 }
 // calculate the least common multiplier.

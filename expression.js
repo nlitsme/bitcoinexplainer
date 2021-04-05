@@ -1,5 +1,6 @@
 /* Author: Willem Hengeveld <itsme@xs4all.nl> */
 /* https://github.com/nlitsme/bitcoinexplainer */
+"use strict";
 
 /*
  * An expression parser.
@@ -140,7 +141,8 @@ function brackets(tokens)
         }
         else if (t instanceof Bracket && t.isclose()) {
             exprlist.push(tokensequence);
-            closedlist = exprlist;
+            let closedlist = exprlist;
+            var topen;
             [topen, exprlist, tokensequence] = stack.pop();
             if (!t.closes(topen))
                 throw "mismatched brackettypes";
@@ -185,7 +187,7 @@ function parse(tokens)
         else if (t instanceof Operator) {
             // [..., +, item] && + < * ==>   [..., *(+(item))]
             while (stack.length>=2 && stack[stack.length-2] instanceof Operator && t.precedence() <= stack[stack.length-2].precedence()) {
-                rhs = stack.pop();
+                let rhs = stack.pop();
                 stack[stack.length-1].add(rhs);
             }
             if (stack.length==0)
@@ -197,7 +199,7 @@ function parse(tokens)
     }
 
     while (stack.length>=2 && stack[stack.length-2] instanceof Operator) {
-        rhs = stack.pop();
+        let rhs = stack.pop();
         stack[stack.length-1].add(rhs)
     }
 
@@ -219,6 +221,7 @@ function evaluator(e, ctx)
 {
     /* evaluate the expression with the specified context. */
     if (e instanceof Operator) {
+        var fn;
         if (e.op == "+") fn = ctx.add;
         else if (e.op == "-") fn = ctx.sub;
         else if (e.op == "*") fn = ctx.mul;

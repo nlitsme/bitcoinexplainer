@@ -1,5 +1,6 @@
 /* Author: Willem Hengeveld <itsme@xs4all.nl> */
 /* https://github.com/nlitsme/bitcoinexplainer */
+"use strict";
 
 /* functions reading and writing bitcoin data */
 

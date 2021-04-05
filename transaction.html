@@ -23,6 +23,7 @@
 <script src="transaction.js"></script>
 <script src="jsutils.js"></script>
 <script language=javascript>
+'use strict';
 function setvalue(base, id, value)
 {
     var av = base.querySelector("#"+id); 
@@ -65,7 +66,7 @@ function processtxn(hex)
     var r = new BitcoinReader(hextobytes(hex));
     var t = new Transaction(r);
     var tab = document.getElementById("hexdump");
-    for (line of t.hexdump()) {
+    for (var line of t.hexdump()) {
         tab.append(makerow(line));
     }
 }

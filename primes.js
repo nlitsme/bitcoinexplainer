@@ -1,5 +1,6 @@
 /* Author: Willem Hengeveld <itsme@xs4all.nl> */
 /* https://github.com/nlitsme/bitcoinexplainer */
+"use strict";
 
 // all primes upto 100000
 // TODO: use a sieve + generator for this, instead of hardcoding the list.

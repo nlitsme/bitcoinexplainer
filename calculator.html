@@ -21,6 +21,7 @@
 <script src="bccurve.js"></script>
 <script src="expression.js"></script>
 <script language=javascript>
+'use strict';
 
 var B = secp256k1();
 function setvalue(base, id, value)
@@ -170,7 +171,7 @@ function do_freeform()
 
     var results = [];
     for (var e of expr.split("\n")) {
-        r = eval_expr(e);
+        let r = eval_expr(e);
         if (r)
             results.push(r);
     }
@@ -193,7 +194,6 @@ function do_freeform()
 function start()
 {
 }
-</script>
 </script>
     </head>
     <body onLoad="start()">

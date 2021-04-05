@@ -1,5 +1,6 @@
 /* Author: Willem Hengeveld <itsme@xs4all.nl> */
 /* https://github.com/nlitsme/bitcoinexplainer */
+"use strict";
 
 /*
     This file provides objects which can decode and encode bitcoin transactions
@@ -7,6 +8,9 @@
      * load  - load from a BitcoinReader object.
      * save  - write to a BitcoinWriter object
      * hexdump - return a formatted hexdump of the object.
+
+
+TODO: create an annotated output, tagging each element, making addresses, txnhash clickable.
 */
 
 
@@ -115,7 +119,7 @@ class Output {
         w.writevar(this.scriptdata.length);
         w.writebytes(this.scriptdata);
         hex += bytestohex(w.result());
-        
+
         return hex;
     }
 };
