@@ -34,6 +34,8 @@ var g_start;     // the starting point, selected by hovering over the grid.
 var g_nrlines=10;   // how many lines to draw from the starting point
 var pointlookup = {};
 
+var primelist = Array.from(genprimes(100000));
+
 function loadec(p, a, b)
 {
     var F = new GaloisField(p);
