@@ -74,3 +74,5 @@ function STATS()
 {
     print(nr_checked, " tests done, ", nr_failed?nr_failed:"none", " failed.");
 }
+
+function* firstn(gen, n) { while(n--) yield gen.next().value; }
