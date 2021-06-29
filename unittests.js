@@ -120,10 +120,14 @@ function runtests()
     var E = new EllipticCurve(F, 0, 7);
     CHECK("decomp(1,0) = (1,840)", E.decompress(F.value(1), 0), E.point(1, 840));
     CHECK("decomp(1,1) = (1,151)", E.decompress(F.value(1), 1), E.point(1, 151));
-    print("done", el('br'));
 
     var B = secp256k1();
     CHECK("decomp(g.x,0) = G", B.ec.decompress(B.G.x, 0), B.G);
     CHECK("decomp(g.x,1) = G", B.ec.decompress(B.G.x, 1), B.G.neg());
+
+    CHECK("sum(10-primes) = xx", [...genprimes(10)].reduce((a,b)=>a+b), 17);
+    CHECK("sum(100-primes) = xx", [...genprimes(100)].reduce((a,b)=>a+b), 1060);
+
+    print("done", el('br'));
     STATS();
 }
