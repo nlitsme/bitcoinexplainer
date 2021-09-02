@@ -338,7 +338,8 @@ Also note that in bitcoin the s value is required to be between 0 and half the g
 
 <p>
 <h2>Example, cracking a key using secret-reuse</h2>
-The calculation is: <pre> k = (m1-m2)/(s1-s2) </pre>
+When a signing secret was used to sign two different messages, you can recover the signing secret with this 
+calculation: <pre> k = (m1-m2)/(s1-s2) </pre>
 And then calculate x in the same way as in the next example.
 <p>
 <table id=crack2>
@@ -364,6 +365,8 @@ And then calculate x in the same way as in the next example.
 
 <p>
 <h2>Example, cracking a key using known secret</h2>
+When you have cracked or otherwise guessed a signing secret for a signature, the private key
+is calculated like this:
 <pre>x = (s*k-m)/r</pre>
 <table id=crack1>
     <tr>
@@ -383,6 +386,7 @@ And then calculate x in the same way as in the next example.
 
 <p>
 <h2>Example, calculate a public key</h2>
+Given the private key, you can calculate the public key like this:
 <pre>Y = G * x</pre>
 <table id=calcpub>
     <tr>
@@ -398,6 +402,7 @@ And then calculate x in the same way as in the next example.
 
 <p>
 <h2>Example, sign a message with a secret key</h2>
+A ecdsa signature is calculated like this:
 <pre>r = xcoord(G*k),  s = (m+x*r)/k</pre>
 <table id=calcsig>
     <tr>
@@ -418,6 +423,7 @@ And then calculate x in the same way as in the next example.
 
 <p>
 <h2>Example, verify a message signature.</h2>
+A ECDSA signature is verified using this calculation:
 <pre>G*m+Y*r==R*s</pre>
 <table id=verifysig>
     <tr>
@@ -441,6 +447,7 @@ And then calculate x in the same way as in the next example.
 
 <p>
 <h2>Example, find pubkey.</h2>
+Given a signature and messagehash, you can calculate the public key:
 <pre>Y = (R*s-G*m)/r</pre>
 <table id=findpk>
     <tr>
@@ -465,6 +472,7 @@ And then calculate x in the same way as in the next example.
 
 <p>
 <h2>Example, find signing secret.</h2>
+given a privatekey, message and signature, you can calculate the signing secret which was used:
 <pre>k = (m+x*r)/s</pre>
 <table id=findk>
     <tr>
