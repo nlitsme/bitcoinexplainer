@@ -6,7 +6,7 @@
  * An expression parser.
  * parses expressions with:
  *  - operators: +, -, *, /, ^, **, =
- *  - values: 0xabcd or 1234 numbers
+ *  - values: 0xabcd or 1234 numbers, or "x+y" strings
  *  - names: starting with a letter.
  *  - brackets for subexpressions:  3*(4+5)
  *  - function calls:  sqrt(a, b)
@@ -32,6 +32,8 @@
  * }
  * And optionally any functions called by name.
  *
+ * TODO:
+ *   support '.' / DOT operator for method calls,  eg: pt.x   or  x.sqrt()
  */
 
 
@@ -43,6 +45,12 @@ class Name  {
     constructor(name) { this.name = name; }
     toString() { return "NAME:["+this.name+"]"; }
 };
+class TextValue {
+    // text values can not be nested, so no escaped quotes.
+    constructor(value) { this.value = value.substring(1, value.length-1); }
+    toString() { return "TEXT:["+this.value+"]"; }
+};
+
 class Operator  {
     constructor(op) { this.op = op; this.args = []; }
     toString() { return "OP:["+this.op+":"+this.args.join(", ")+"]"; }
@@ -77,13 +85,14 @@ function* tokenizer(txt)
 {
     var p = 0;
     var patterns = [
-        [ NumValue,      /0x[0-9a-fA-F]+\b/y ],
-        [ NumValue,      /[0-9]+\b/y ],
+        [ NumValue,   /0x[0-9a-fA-F]+\b/y ],
+        [ NumValue,   /[0-9]+\b/y ],
         [ Name,       /[a-zA-Z_]\w*(?:\.\w+)*/y ],
         [ Operator,   /\*\*|[=+*/^]|-/y ],
         [ Bracket,    /[()]/y ],
         [ Comma,      /,/y ],
         [ Whitespace, /\s+/y ],
+        [ TextValue,  /"[^"]*"/y ],
     ];
     while (p < txt.length)
     {
@@ -247,6 +256,8 @@ function evaluator(e, ctx)
         return ctx.get(e.name);
     if (e instanceof NumValue) 
         return ctx.numbervalue(e.value);
+    if (e instanceof TextValue) 
+        return ctx.textvalue(e.value);
     if (e instanceof ExpressionList) {
         if (e.values.length==1) 
             return evaluator(e.values[0], ctx);
