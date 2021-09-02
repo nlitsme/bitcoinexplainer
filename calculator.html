@@ -43,34 +43,83 @@ function getnumber(base, id)
     return B.scalar(BigInt(val));
 }
 
-
 class ECContext {
     constructor()
     {
         this.constants = { G: B.G, n: B.ec.order.p, p: B.ec.field.p };
+
+        // the current variables
         this.d = {};
     }
 
     // functions evaluating the various operators
-    add(a, b) { return a.add(b); }
-    sub(a, b) { return a.sub(b); }
+    add(a, b) {
+        if ((a instanceof Point && b instanceof Point)
+            || (a instanceof Value && b instanceof Value))
+            return a.add(b);
+        throw "You can only add points to points, or scalars to scalars";
+    }
+    sub(a, b) {
+        if ((a instanceof Point && b instanceof Point)
+            || (a instanceof Value && b instanceof Value))
+            return a.sub(b);
+        throw "You can only subtract points from points, or scalars from scalars";
+    }
     mul(a, b) {
+        if (a instanceof Point && b instanceof Point)
+            throw "points cannot be multiplied together";
+        // 'scalar * point'  is the same as 'point * scalar'
         if (b instanceof Point)
             return b.mul(a);
+
+        // handles both 'scalar * scalar', and  'point * scalar'
         return a.mul(b);
     }
-    div(a, b) { return a.div(B.scalar(b)); }
-    pow(a, b) { return a.pow(b); }
+    div(a, b) {
+        if (b instanceof Point)
+            throw "You cannot divide by a point";
+        return a.div(B.scalar(b));
+    }
+    pow(a, b) {
+        if (a instanceof Point || b instanceof Point)
+            throw "You cannot exponentiate Points";
+        // todo: make sure  2^(-1)  translates to 1/2
+        // todo: make sure  2^(1/2)  translates to sqrt(2)
+        return a.pow(b);
+    }
 
     // the builtin functions
-    sqrt(a, flag) { return a.sqrt(Number(numval(flag))); }
+    sqrt(a, flag) {
+        // todo: sometimes this results in a negative number.
+        return a.sqrt(Number(numval(flag)));
+    }
     cubert(a, flag) { return a.cubert(Number(numval(flag))); }
     coord(a) { return B.ec.coord(a); }
     fromx(x, flag) { return B.ec.decompress(B.ec.coord(x), Number(numval(flag))); }
     fromy(y, flag) { return B.ec.ydecompress(B.ec.coord(y), Number(numval(flag))); }
+    generate(start, n, expr) {
+        if (!["inc", "dbl"].includes(expr))
+            throw "generate must have either \"inc\", or \"dbl\" as its third argument.";
+
+        // generate start, start+G, start+2*G, ...
+        // todo: make it possible to pass expressions as a lambda.
+        n = numval(n);
+        var P = start;
+        var r = [];
+        for (var i=0 ; i < n ; i++) {
+            r.push(P);
+            if (expr==="inc")
+                P = P.add(B.G);
+            else if (expr==="dbl")
+                P = P.add(P);
+        }
+        return r;
+    }
 
     // function for evaluating a number
     numbervalue(a) { return B.scalar(BigInt(a)); }
+    // function for evaluating a string
+    textvalue(a) { return a; }
     // function for evaluating a list
     listvalue(t, a) {
         // "(x, y)"  evaulates to a curve point
@@ -167,6 +216,11 @@ function eval_expr(expr)
         txt = r.toString();
     else if (r instanceof Value)
         txt = r.toString();
+    else if (r instanceof Array) {
+        var res = "";
+        r.forEach( v => res += v.toString() + "\n" );
+        txt = res;
+    }
     else if (r)
         console.log(r);
 
@@ -242,16 +296,26 @@ Predefined constants:
 
 functions:
 <ul>
-<li><em>sqrt</em> - the square root, a number and a flag 0 or 1
-<li><em>cubert</em> - the cube root, takes two params, a number and a flag 0, 1 or 2
-<li><em>coord</em> - force a value to be a coordinate, in the galois field of order <em>p</em>
-<li><em>scalar</em> - force a value to be a coordinate, in the galois field of order <em>n</em>
-<li><em>fromx</em> - 'decompress' a point from a x coord and a flag{0,1}.
-<li><em>fromy</em> - 'decompress' a point from a y coord and a flag{0,1,2}.
+<li><em>sqrt(value, flag)</em> - the square root, a number and a flag 0 or 1
+<li><em>cubert(value, flag)</em> - the cube root, takes two params, a number and a flag 0, 1 or 2
+<li><em>coord(value)</em> - force a value to be a coordinate, in the galois field of order <em>p</em>
+<li><em>scalar(value)</em> - force a value to be a coordinate, in the galois field of order <em>n</em>
+<li><em>fromx(xcoord, flag)</em> - 'decompress' a point from a x coord and a flag{0,1}.
+<li><em>fromy(ycoord, flag)</em> - 'decompress' a point from a y coord and a flag{0,1,2}.
+<li><em>generate(point, count, type)</em> - generate a sequence of curve points, type must be "inc" ( increment point ) or "dbl" (double point)
 <li><em>(x,y)</em> - a curve point.
 <li><em>1234</em> - a scalar value.
 <li><em>0xabcd</em> - a hexadecimal scalar value.
 </ul>
+operators:
+<ul>
+<li><em>+</em> - addition: Point+Point, Scalar+Scalar
+<li><em>-</em> - subtraction: Point-Point, Scalar-Scalar
+<li><em>*</em> - multiplication: Point*Scalar, Scalar*Point, Scalar*Scalar
+<li><em>/</em> - division: Point/Scalar, Scalar/Scalar
+<li><em>^</em> - exponentiation: Scalar^Scalar
+</ul>
+
 
 <p>
 <h2>Free form expressions.</h2>
