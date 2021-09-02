@@ -50,6 +50,8 @@ class ECContext {
         this.constants = { G: B.G, n: B.ec.order.p, p: B.ec.field.p };
         this.d = {};
     }
+
+    // functions evaluating the various operators
     add(a, b) { return a.add(b); }
     sub(a, b) { return a.sub(b); }
     mul(a, b) {
@@ -59,15 +61,19 @@ class ECContext {
     }
     div(a, b) { return a.div(B.scalar(b)); }
     pow(a, b) { return a.pow(b); }
+
+    // the builtin functions
     sqrt(a, flag) { return a.sqrt(Number(numval(flag))); }
     cubert(a, flag) { return a.cubert(Number(numval(flag))); }
-
     coord(a) { return B.ec.coord(a); }
     fromx(x, flag) { return B.ec.decompress(B.ec.coord(x), Number(numval(flag))); }
     fromy(y, flag) { return B.ec.ydecompress(B.ec.coord(y), Number(numval(flag))); }
 
+    // function for evaluating a number
     numbervalue(a) { return B.scalar(BigInt(a)); }
+    // function for evaluating a list
     listvalue(t, a) {
+        // "(x, y)"  evaulates to a curve point
         if (a.length==2 && t=="()")
             return B.ec.point(a[0], a[1]);
         throw "value not supported";
@@ -88,6 +94,8 @@ class ECContext {
         var tab = document.getElementById(tabname);
         return getnumber(tab, itemname);
     }
+
+    // variable assignment
     set(name, value)
     {
         if (name in this.constants) {
@@ -164,10 +172,17 @@ function eval_expr(expr)
 
     return txt;
 }
+function make_url_for_expr(expr)
+{
+    var baseurl = window.location.protocol + "//" + window.location.host + "/" + window.location.pathname;
+    return baseurl + "#" + btoa(expr);
+}
 function do_freeform()
 {
     var tab = document.getElementById("freeform");
     var expr = tab.querySelector("#expr").value;
+    var href = tab.querySelector("#href");
+    href.href = make_url_for_expr(expr);
 
     var results = [];
     for (var e of expr.split("\n")) {
@@ -193,6 +208,12 @@ function do_freeform()
 }
 function start()
 {
+    var tab = document.getElementById("freeform");
+    var expr = tab.querySelector("#expr");
+    var h = window.location.hash;
+    if (h.startsWith("#"))
+        h = h.slice(1);
+    expr.value = atob(h);
 }
 </script>
     </head>
@@ -207,6 +228,10 @@ Author: Willem Hengeveld, <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>,
 Source: <a href="https://github.com/nlitsme/bitcoinexplainer">on github</a>.
 <p>
 Enter any kind of expression to do elliptic curve calculations. one expression per line. You can assign expressions to variables, which will be remembered.
+You can also save a link to the calculation.
+<br>
+Calculations on numbers are done modulo the grouporder, Calculations on points are done in the <a href="https://en.bitcoin.it/wiki/Secp256k1">secp256k1</a> curve.
+<br>
 <br>
 Predefined constants:
 <ul>
@@ -235,6 +260,7 @@ functions:
         <td valign=top>
             <button onclick='do_freeform()'>calculate</button><br>
             <button onclick='load_freeform()'>Load example</button><br>
+            <a id=href href=#>link this calculation</a><br>
         </td>
         <td><textarea rows=10 cols=80 id='expr'></textarea></td>
     </tr>
