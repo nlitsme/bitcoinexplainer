@@ -26,6 +26,7 @@
     <body onLoad="start()">
 Menu:
   <a href="ecdsacrack.html">crack demo</a> 
+  <a href="linearequations.html">using linear algebra</a> 
   <a href="calculator.html">curve calculator</a> 
   <a href="curve.html">curve demo</a> 
   <a href="transaction.html">bitcoin transaction</a> 
@@ -80,7 +81,7 @@ This can by solved by triangulation. Note that due to the amibguity in the signa
 
 <h2>real world example</h2>
 
-<pre>r*x = s*k-m</pre> for the six transactions mentioned below:
+the equation <code>r*x = s*k-m</code> for the six transactions mentioned below:
 <pre>
 0x0389638bfce93ab40097435f21d380c0b3371e4d2f2e15113d7759299014e02f * 0x919a42e754e5fcbd74cabdab7b8243dd0b1ab1f8db07a3382717253c3f2ac1ad == 0x5e44b6d4a11b8b62155393cb84b0ac4935d23cc4e8b2b6bf381c4192fb07d9a7 *  0x02ebdb803f48d249a21ae25436b2dfdd5bb308262ae6f5446142d9f094027ae7 - 0x55a8fe91ff401192205e31f4b06f90adc3c5369bf399eb4429cb2751a1ce2cc8
 0x647345f1b4d51d22e41d4555e63c58362bab3fe9d58de1df8340d0a9ba921af5 * 0x919a42e754e5fcbd74cabdab7b8243dd0b1ab1f8db07a3382717253c3f2ac1ad == 0x7681e4d5dfbabc9f65a03cc8370b5bf9bc4e1b19aae7d652eb4dd5aa12253aa9 * -0x02ebdb803f48d249a21ae25436b2dfdd5bb308262ae6f5446142d9f094027ae7 - 0x8af76ff2ab7f5b20ccc0eec5f34077a6532f5f7f2e84befbeb2c7a96a5a87dc8
@@ -92,12 +93,12 @@ This can by solved by triangulation. Note that due to the amibguity in the signa
 
 These are the corresponding transactions:
 <ul>
-<li><a href="https://blockchair.com/bitcoin/transaction/2b726136d29fa27302abd2cdd30c8f34dd9c68a68c6c1dfd0456312182add496?o=9">2b726136</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/9173e0721afdb0ef1abd76b7f1b73c584728156e9bb865bc97e47b444f171ec2?i=2">9173e072</a></li>
-<li><a href="https://blockchair.com/bitcoin/transaction/8f355db47258df2b386c63a140d38248c188a5b3d0319419233f8ea3a008d4af?o=1">8f355db4</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/2d55bef5f1f2f3127ddce68ffd3ed91e8f2aafb442560e7547c024166bf566eb?i=0">2d55bef5</a></li>
-<li><a href="https://blockchair.com/bitcoin/transaction/e7648d06cf23896f166edead93be0c1e3862f27840ee96c2ae121b697dcbd827?o=1">e7648d06</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/6d64d48a1598e632aba49ff8ce7ecdf37324f40956491ce6f433a05ab31da247?i=3">6d64d48a</a></li>
-<li><a href="https://blockchair.com/bitcoin/transaction/9c2c80a3ddd264a1b6c1bb851a16cfbe16d259ed5a7b2a9bd59bc3f6c1335baf?o=0">9c2c80a3</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/4efd069d158e749e750b731f43602ce1f72c0a6c4c53eabcd83610b47e7a2076?i=1">4efd069d</a></li>
-<li><a href="https://blockchair.com/bitcoin/transaction/8235312984ac89f3a855034c3b7159cbe8fd03fc41e3db4867f1d1f43e21516d?o=0">82353129</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/4efd069d158e749e750b731f43602ce1f72c0a6c4c53eabcd83610b47e7a2076?i=4">4efd069d</a></li>
-<li><a href="https://blockchair.com/bitcoin/transaction/f6387e9b0d93b5d46d4a6b059d97acb071702f8af505177bada32a5c9012c2df?o=14">f6387e9b</a> --&gt; <a href="https://blockchair.com/bitcoin/transaction/98cf86e33797990a2bc90bb809d9072654950fb322d65a5984ef250da7d85aeb?i=0">98cf86e3</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/2b726136d29fa27302abd2cdd30c8f34dd9c68a68c6c1dfd0456312182add496?o=9">txn:2b726136...#out-9</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/9173e0721afdb0ef1abd76b7f1b73c584728156e9bb865bc97e47b444f171ec2?i=2">txn:9173e072...#in-2</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/8f355db47258df2b386c63a140d38248c188a5b3d0319419233f8ea3a008d4af?o=1">txn:8f355db4...#out-1</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/2d55bef5f1f2f3127ddce68ffd3ed91e8f2aafb442560e7547c024166bf566eb?i=0">txn:2d55bef5...#in-0</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/e7648d06cf23896f166edead93be0c1e3862f27840ee96c2ae121b697dcbd827?o=1">txn:e7648d06...#out-1</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/6d64d48a1598e632aba49ff8ce7ecdf37324f40956491ce6f433a05ab31da247?i=3">txn:6d64d48a...#in-3</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/9c2c80a3ddd264a1b6c1bb851a16cfbe16d259ed5a7b2a9bd59bc3f6c1335baf?o=0">txn:9c2c80a3...#out-0</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/4efd069d158e749e750b731f43602ce1f72c0a6c4c53eabcd83610b47e7a2076?i=1">txn:4efd069d...#in-1</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/8235312984ac89f3a855034c3b7159cbe8fd03fc41e3db4867f1d1f43e21516d?o=0">txn:82353129...#out-0</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/4efd069d158e749e750b731f43602ce1f72c0a6c4c53eabcd83610b47e7a2076?i=4">txn:4efd069d...#in-4</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/f6387e9b0d93b5d46d4a6b059d97acb071702f8af505177bada32a5c9012c2df?o=14">txn:f6387e9b...#out-14</a> --&gt; <a href="https://blockchair.com/bitcoin/transaction/98cf86e33797990a2bc90bb809d9072654950fb322d65a5984ef250da7d85aeb?i=0">txn:98cf86e3...#in-0</a></li>
 </ul>
 
 </body>
