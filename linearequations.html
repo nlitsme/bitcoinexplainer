@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>Cracking keys by solving sets of linear equations.</title>
+<meta charset=utf-8 />
+<meta http-equiv=“Pragma” content=”no-cache”>
+<meta http-equiv=“Expires” content=”-1″>
+<meta http-equiv=“CACHE-CONTROL” content=”NO-CACHE”>
+
+<meta name="keywords" content="bitcoin,ecdsa,example,calculations,math">
+<meta name="author" content="Willem Hengeveld, itsme@xs4all.nl">
+<meta name="description" content="More complicated cases, solving sets of linear equations.">
+<style>
+    h2 { background-color: lightgreen; }
+</style>
+<script src="bignum.js"></script>
+<script src="gfp.js"></script>
+<script src="ec.js"></script>
+<script src="ecdsa.js"></script>
+<script src="utils.js"></script>
+<script src="bccurve.js"></script>
+<script language=javascript>
+'use strict';
+
+</script>
+    </head>
+    <body onLoad="start()">
+Menu:
+  <a href="ecdsacrack.html">crack demo</a> 
+  <a href="calculator.html">curve calculator</a> 
+  <a href="curve.html">curve demo</a> 
+  <a href="transaction.html">bitcoin transaction</a> 
+  <a href="unittest.html">unittest</a><br>
+Author: Willem Hengeveld, <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>,
+Source: <a href="https://github.com/nlitsme/bitcoinexplainer">on github</a>.
+<p>
+There is the well known attack on ecdsa, where you can calculate the signing secret from two signatures for the same key for two different messages with the same signing secret. 
+<ul>
+    <li>two signatures with the same private key 'x' and signing secret 'k'</li>
+    <li>r*x = s1*k-m1    (eq1)</li>
+    <li>r*x = s2*k-m2    (eq2)</li>
+    <li>from this follows: s1*k-m1 == s2*k-m2</li>
+    <li>or: (s1-s2)*k == m1-m2  --&gt; k = (m1-m2)/(s1-s2)</li>
+</ul>
+
+<p>
+Another less known, but similar attack, is where you have a chain of signatures and public keys linked in a circle.
+
+Given these signatures:
+<style>
+span.unknown { color:blue; }
+</style>
+<ul>
+	<li> (r1, s1, m1, pub1)  --&gt; r1*<span class=unknown>x1</span> = s1*<span class=unknown>k1</span>-m1</li>
+	<li> (r2, s2, m2, pub1)  --&gt; r2*<span class=unknown>x1</span> = s2*<span class=unknown>k2</span>-m2</li>
+	<li> (r2, s3, m3, pub2)  --&gt; r2*<span class=unknown>x2</span> = s3*<span class=unknown>k2</span>-m3</li>
+	<li> (r3, s4, m4, pub2)  --&gt; r3*<span class=unknown>x2</span> = s4*<span class=unknown>k3</span>-m4</li>
+	<li> (r3, s5, m5, pub3)  --&gt; r3*<span class=unknown>x3</span> = s5*<span class=unknown>k3</span>-m5</li>
+	<li> (r1, s6, m6, pub3)  --&gt; r1*<span class=unknown>x3</span> = s6*<span class=unknown>k1</span>-m6</li>
+</ul>
+Then you can write down a set of 6 linear equations in 6 unknowns, which can be easily solved using some linear algebra.
+The blue values are the six unknowns.
+<pre>
+     r1*x1             -s1*k1               = -m1
+     r2*x1                    -s2*k2        = -m2
+           r2*x2              -s3*k2        = -m3
+           r3*x2                     -s4*k3 = -m4
+                 r3*x3               -s5*k3 = -m5
+                 r1*x3 -s6*k1               = -m6
+</pre>
+converted to a matrix equation
+<pre>
+   (r1  0  0 -s1   0   0 ) (x1)= (-m1)
+   (r2  0  0   0 -s2   0 ) (x2)= (-m2)
+   ( 0 r2  0   0 -s3   0 ) (x3)= (-m3)
+   ( 0 r3  0   0   0 -s4 ) (k1)= (-m4)
+   ( 0  0 r3   0   0 -s5 ) (k2)= (-m5)
+   ( 0  0 r1 -s6   0   0 ) (k3)= (-m6)
+</pre>
+This can by solved by triangulation. Note that due to the amibguity in the signature, you have to try all 2<sup>6</sup> possible combination of signs for the 's' values.
+
+<h2>real world example</h2>
+
+<pre>r*x = s*k-m</pre> for the six transactions mentioned below:
+<pre>
+0x0389638bfce93ab40097435f21d380c0b3371e4d2f2e15113d7759299014e02f * 0x919a42e754e5fcbd74cabdab7b8243dd0b1ab1f8db07a3382717253c3f2ac1ad == 0x5e44b6d4a11b8b62155393cb84b0ac4935d23cc4e8b2b6bf381c4192fb07d9a7 *  0x02ebdb803f48d249a21ae25436b2dfdd5bb308262ae6f5446142d9f094027ae7 - 0x55a8fe91ff401192205e31f4b06f90adc3c5369bf399eb4429cb2751a1ce2cc8
+0x647345f1b4d51d22e41d4555e63c58362bab3fe9d58de1df8340d0a9ba921af5 * 0x919a42e754e5fcbd74cabdab7b8243dd0b1ab1f8db07a3382717253c3f2ac1ad == 0x7681e4d5dfbabc9f65a03cc8370b5bf9bc4e1b19aae7d652eb4dd5aa12253aa9 * -0x02ebdb803f48d249a21ae25436b2dfdd5bb308262ae6f5446142d9f094027ae7 - 0x8af76ff2ab7f5b20ccc0eec5f34077a6532f5f7f2e84befbeb2c7a96a5a87dc8
+0x647345f1b4d51d22e41d4555e63c58362bab3fe9d58de1df8340d0a9ba921af5 * 0xe9865bfa35a9b3cb6fed461c4a39284f04511b4b8f6972a9ebfc7c1f52687083 == 0x6546cc8fd23acd5e2c64bf6b09f9990a7a42be1b7a3b1dc9786ac77802b6cf73 *  0x5511473f7db5dd5435f02b1a1ef45ab046ad970ef91ed7c6039f588e201c038f - 0x4de4c6c9b0528a460f3d70b84e5fae9109bbb905f07c9fc8f09219a379032e1a
+0x25c5c21ff897eeece140ddf4cd7a0a474ca5d2d35e02048b1fd79303aee7fe33 * 0xe9865bfa35a9b3cb6fed461c4a39284f04511b4b8f6972a9ebfc7c1f52687083 == 0x3ffe8060b405489f51b59444efdce73206b36eb09b1381c2ce5c3223e8a51c68 *  0x5511473f7db5dd5435f02b1a1ef45ab046ad970ef91ed7c6039f588e201c038f - 0x2beed53a6a08594c44f7bd47774f49f7081f43fe409aa3be178fcac0a71e589d
+0x25c5c21ff897eeece140ddf4cd7a0a474ca5d2d35e02048b1fd79303aee7fe33 * 0xdcb5b2839d1844adb363f3849d53f081af12fa667c701ff08c5cd5b8cbe71d17 == 0x45ca407b097c00c1239b173b11a098d1230259c23c2485d8509e5291f7863d7d * -0x2c6a989a806bbac597ee2d932429d702352d8772dd0c4ae6efae5ac0db87d882 - 0x1cedb93f250fca21974fc111b4774d84a9a01ce5c3c13cfe9588d8a4c81d4327
+0x0389638bfce93ab40097435f21d380c0b3371e4d2f2e15113d7759299014e02f * 0xdcb5b2839d1844adb363f3849d53f081af12fa667c701ff08c5cd5b8cbe71d17 == 0x2b356ecf926cc37f5331222ea71cd5c13d729e4f19fd867bf24db46eb87dd99d * -0x2c6a989a806bbac597ee2d932429d702352d8772dd0c4ae6efae5ac0db87d882 - 0xe8b810b5cb497a42e0c7fcea4541e11291dc61d90d767c76d9ba820a7ab7c6cf
+</pre>
+
+These are the corresponding transactions:
+<ul>
+<li><a href="https://blockchair.com/bitcoin/transaction/2b726136d29fa27302abd2cdd30c8f34dd9c68a68c6c1dfd0456312182add496?o=9">2b726136</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/9173e0721afdb0ef1abd76b7f1b73c584728156e9bb865bc97e47b444f171ec2?i=2">9173e072</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/8f355db47258df2b386c63a140d38248c188a5b3d0319419233f8ea3a008d4af?o=1">8f355db4</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/2d55bef5f1f2f3127ddce68ffd3ed91e8f2aafb442560e7547c024166bf566eb?i=0">2d55bef5</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/e7648d06cf23896f166edead93be0c1e3862f27840ee96c2ae121b697dcbd827?o=1">e7648d06</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/6d64d48a1598e632aba49ff8ce7ecdf37324f40956491ce6f433a05ab31da247?i=3">6d64d48a</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/9c2c80a3ddd264a1b6c1bb851a16cfbe16d259ed5a7b2a9bd59bc3f6c1335baf?o=0">9c2c80a3</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/4efd069d158e749e750b731f43602ce1f72c0a6c4c53eabcd83610b47e7a2076?i=1">4efd069d</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/8235312984ac89f3a855034c3b7159cbe8fd03fc41e3db4867f1d1f43e21516d?o=0">82353129</a>  --&gt; <a href="https://blockchair.com/bitcoin/transaction/4efd069d158e749e750b731f43602ce1f72c0a6c4c53eabcd83610b47e7a2076?i=4">4efd069d</a></li>
+<li><a href="https://blockchair.com/bitcoin/transaction/f6387e9b0d93b5d46d4a6b059d97acb071702f8af505177bada32a5c9012c2df?o=14">f6387e9b</a> --&gt; <a href="https://blockchair.com/bitcoin/transaction/98cf86e33797990a2bc90bb809d9072654950fb322d65a5984ef250da7d85aeb?i=0">98cf86e3</a></li>
+</ul>
+
+</body>
+</html>
