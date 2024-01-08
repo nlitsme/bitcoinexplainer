@@ -333,8 +333,12 @@ Several example calculations with the bitcoin parameters. In these calculations 
     <li>m - the message, a value between 0 and the group order</li>
     <li>Y - the public key</li>
 </ul>
-Note that in bitcoin calculations the message is the hash of the prepared transaction.<br>
-Also note that in bitcoin the s value is required to be between 0 and half the group order, you have to take the negative when it is larger.<br>
+<em>Notes</em>
+<ul>
+    <li>All numbers are hexadecimal</li>
+    <li>Note that in bitcoin calculations the message is the hash of the prepared transaction.</li>
+    <li>Also note that in bitcoin the s value is required to be between 0 and half the group order, you have to take the negative when it is larger.</li>
+</ul>
 
 <p>
 <h2>Example, cracking a key using secret-reuse</h2>
