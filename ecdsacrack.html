@@ -342,6 +342,51 @@ Several example calculations with the bitcoin parameters. In these calculations 
 </ul>
 
 <p>
+<h2>Example, sign a message with a secret key</h2>
+A ecdsa signature is calculated like this:
+<pre>r = xcoord(G*k),  s = (m+x*r)/k</pre>
+<table id=calcsig>
+    <tr>
+        <td>x: <input size=64 id='x'></td>
+        <td>k: <input size=64 id='k'></td>
+    </tr>
+    <tr>
+        <td>m: <input size=64 id='m'></td>
+        <td><button onclick='do_calcsig()'>Calc sig</button>
+            <button onclick='load_calcsig()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>r: <span id='r'></span></td>
+        <td>s: <span id='s'></span></td>
+    </tr>
+</table>
+
+<p>
+<h2>Example, verify a message signature.</h2>
+A ECDSA signature is verified using this calculation:
+<pre>G*m+Y*r==R*s</pre>
+<table id=verifysig>
+    <tr>
+        <td>px: <input size=64 id='px'></td>
+        <td>py: <input size=64 id='py'></td>
+    </tr>
+    <tr>
+        <td>r: <input size=64 id='r'></td>
+        <td>s: <input size=64 id='s'></td>
+    </tr>
+    <tr>
+        <td>m: <input size=64 id='m'></td>
+        <td><button onclick='do_verifysig()'>Verify sig</button>
+            <button onclick='load_verifysig()'>Load example</button>
+        </td>
+    </tr>
+    <tr>
+        <td>result: <span id='result'></span></td>
+    </tr>
+</table>
+
+<p>
 <h2>Example, cracking a key using secret-reuse</h2>
 When a signing secret was used to sign two different messages, you can recover the signing secret with this 
 calculation: <pre> k = (m1-m2)/(s1-s2) </pre>
@@ -402,51 +447,6 @@ Given the private key, you can calculate the public key like this:
     <tr>
         <td>px: <span id='px'></span></td>
         <td>py: <span id='py'></span></td>
-    </tr>
-</table>
-
-<p>
-<h2>Example, sign a message with a secret key</h2>
-A ecdsa signature is calculated like this:
-<pre>r = xcoord(G*k),  s = (m+x*r)/k</pre>
-<table id=calcsig>
-    <tr>
-        <td>x: <input size=64 id='x'></td>
-        <td>k: <input size=64 id='k'></td>
-    </tr>
-    <tr>
-        <td>m: <input size=64 id='m'></td>
-        <td><button onclick='do_calcsig()'>Calc sig</button>
-            <button onclick='load_calcsig()'>Load example</button>
-        </td>
-    </tr>
-    <tr>
-        <td>r: <span id='r'></span></td>
-        <td>s: <span id='s'></span></td>
-    </tr>
-</table>
-
-<p>
-<h2>Example, verify a message signature.</h2>
-A ECDSA signature is verified using this calculation:
-<pre>G*m+Y*r==R*s</pre>
-<table id=verifysig>
-    <tr>
-        <td>px: <input size=64 id='px'></td>
-        <td>py: <input size=64 id='py'></td>
-    </tr>
-    <tr>
-        <td>r: <input size=64 id='r'></td>
-        <td>s: <input size=64 id='s'></td>
-    </tr>
-    <tr>
-        <td>m: <input size=64 id='m'></td>
-        <td><button onclick='do_verifysig()'>Verify sig</button>
-            <button onclick='load_verifysig()'>Load example</button>
-        </td>
-    </tr>
-    <tr>
-        <td>result: <span id='result'></span></td>
     </tr>
 </table>
 
