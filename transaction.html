@@ -12,6 +12,11 @@
 <meta name="keywords" content="bitcoin,example">
 <meta name="author" content="Willem Hengeveld, itsme@xs4all.nl">
 <meta name="description" content="How bitcoin transactions are structured.">
+<style>
+span.clickable { color: blue; text-decoration: underline; cursor: pointer; }
+span.clickablehex { color: blue; text-decoration: underline; cursor: pointer; font-family: monospace; background-color: #f4f4f4; }
+span.leafnode { color: green; }
+</style>
 
 <script src="bignum.js"></script>
 <script src="primes.js"></script>
@@ -53,9 +58,13 @@ function loadtxns()
 }
 function fetch_and_loadtxn(txnid)
 {
-    // problem with bitcoin.com: it is hours behind.
+    // note problem with bitcoin.com: it is hours behind, this is why i use the blockchair api.
     fetch("https://api.blockchair.com/bitcoin/raw/transaction/"+txnid).then(r => r.json()).then(r => {
-        Object.entries(r.data).forEach( ([k,v])=> { hexdumptxn(v.raw_transaction) });
+        const raw = Object.values(r.data)[0].raw_transaction;
+        fetch("https://api.blockchair.com/bitcoin/dashboards/transaction/"+txnid).then(r => r.json()).then(r => {
+            const info = Object.values(r.data)[0].transaction;
+            hexdumptxn(info, raw)
+        });
     });
 }
 
@@ -69,9 +78,12 @@ function annotatetxns()
 }
 function fetch_and_annotatetxn(txnid)
 {
-    // problem with bitcoin.com: it is hours behind.
     fetch("https://api.blockchair.com/bitcoin/raw/transaction/"+txnid).then(r => r.json()).then(r => {
-        Object.entries(r.data).forEach( ([k,v])=> { annotatetxn(v.raw_transaction) });
+        const raw = Object.values(r.data)[0].raw_transaction;
+        fetch("https://api.blockchair.com/bitcoin/dashboards/transaction/"+txnid).then(r => r.json()).then(r => {
+            const info = Object.values(r.data)[0].transaction;
+            annotatetxn(info, raw)
+        });
     });
 }
 
@@ -98,7 +110,7 @@ function makeinputrow(line)
     var hexline = line[1];
     var txnid = maketxnid(hexline.slice(0,64));
 
-    var txncode = el('code', hexline.slice(0,64));
+    var txncode = el('span', hexline.slice(0,64), {class:'clickablehex'});
     txncode.addEventListener('click', () => { fetch_and_loadtxn(txnid); });
 
     var txnrest = el('code', hexline.slice(64));
@@ -108,12 +120,13 @@ function makeinputrow(line)
     return tr;
 }
 
-function hexdumptxn(hex)
+function hexdumptxn(info, hex)
 {
     var r = new BitcoinReader(hextobytes(hex));
     var t = new Transaction(r);
     var tab = document.getElementById("hexdump");
     tab.append(el('tr', el('td', el('hr'), {colspan:2})));
+    tab.append(el('tr', el('td', el('span', "txn hexdump "+info.hash+" block:"+info.block_id+" "+info.time), {colspan:2})));
     var isin = false;
     for (var line of t.hexdump()) {
         if (line.find(a=>a.includes("nr inputs")))
@@ -138,7 +151,7 @@ function makeannotated(children)
 {
     var dl = el('dl');
     for (var ch of children) {
-        var dt = el('dt', el('em', ch.tagName), ' ', el('code', ch.textContent));
+        var dt = el('dt', el('span', ch.tagName, {class:ch.children.length?'clickable':'leafnode'}), ' ', el('code', ch.textContent));
         dt.collapsed = true;
         if (ch.children.length) {
             dt.subchildren = ch.children;
@@ -159,12 +172,13 @@ function makeannotated(children)
 
     return dl;
 }
-function annotatetxn(hex)
+function annotatetxn(info, hex)
 {
     var r = new BitcoinReader(hextobytes(hex));
     var t = new Transaction(r);
     var tab = document.getElementById("hexdump");
     tab.append(el('tr', el('td', el('hr'), {colspan:2})));
+    tab.append(el('tr', el('td', el('span', "txn hexdump "+info.hash+" block:"+info.block_id+" "+info.time), {colspan:2})));
 
     var parser = new DOMParser();
     var xml = parser.parseFromString(t.annotate(), "text/xml");
@@ -184,8 +198,9 @@ Menu:
 Author: Willem Hengeveld, <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>,
 Source: <a href="https://github.com/nlitsme/bitcoinexplainer">on github</a>.
 <p>
-This demonstrates how bitcoin transactions are structured.
-You can click on the input txn to follow the chain to the corresponding output.
+This demonstrates how bitcoin transactions are structured.<br>
+In the hexdump, you can click on the input txn to follow the chain to the corresponding output.<br>
+In the annotated view, you can click on items to expand them.
 
 <table id=transaction>
     <tr>
