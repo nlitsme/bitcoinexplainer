@@ -48,20 +48,29 @@ class EllipticCurve {
             return new Point(this, undefined, undefined);
         return new Point(this, this.coord(x), this.coord(y));
     }
+
+    /* determine y coordinate given an x coordinate */
     decompress(x, flag)
     {
+        //  y^2 == x^3 + x*a + b
         var y2 = x.cube().add(x.mul(this.a)).add(this.b);
+
+        // there are two solutions, the flag tells us which to pick.
         var y = y2.sqrt(flag);
         if (!y)
             throw "no sqrt for x";
         return this.point(x, y);
     }
+
+    /* determine x coordinate given an y coordinate */
     ydecompress(y, flag)
     {
         if (!numiszero(this.a)) {
             console.log("ydecompress only works for curves where a==0");
             return;
         }
+        // x^3 == y^2 - b
+        //  there are three solutions, flag tells us which to pick.
         var x = y.square().sub(this.b).cubert(flag);
         if (!x)
             throw "no cubert for y";
@@ -76,15 +85,25 @@ class EllipticCurve {
         if (rhs.isinf()) return lhs;
         var l;
         if (lhs.equals(rhs)) {
+            // points are equal: double the point.
             if (lhs.y.iszero())
                 return this.infinity();
+            // l = (3*x^2 + a)/(2*y)
             l = lhs.x.square().thrice().add(this.a).div(lhs.y.double());
         }
-        else if (lhs.x.equals(rhs.x))
+        else if (lhs.x.equals(rhs.x)) {
+            // points are different, with same x coordinate
+            //   the y coordinates must be each others negative
             return this.infinity();
+        }
         else {
+            // different points
+            //  l = (y0-y1)/(x0-x1)
             l = lhs.y.sub(rhs.y).div(lhs.x.sub(rhs.x));
         }
+
+        // x = l^2 - (x0+x1)
+        // y = l*(x0-x)-y0
         var x = l.square().sub(lhs.x.add(rhs.x));
         var y = l.mul(lhs.x.sub(x)).sub(lhs.y);
 
