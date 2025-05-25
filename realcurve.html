@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Graphs of real-valued elliptic curves</title>
+    <style>
+    .w50 { width:100px; display: inline-block; }
+    </style>
+<meta charset=utf-8 />
+<meta http-equiv=“Pragma” content=”no-cache”>
+<meta http-equiv=“Expires” content=”-1″>
+<meta http-equiv=“CACHE-CONTROL” content=”NO-CACHE”>
+
+<meta name="keywords" content="ellipticcurve,example,calculations,math">
+<meta name="author" content="Willem Hengeveld, itsme@xs4all.nl">
+<meta name="description" content="Graphs of small elliptic curves.">
+
+<script src="real.js"></script>
+<script src="ec.js"></script>
+<script src="utils.js"></script>
+<script src="jsutils.js"></script>
+<script language=javascript>
+'use strict';
+
+
+var g_a; var g_b;  // the curve parameters.
+
+var ec;         // the curve.
+
+var curvepoints = []; // the list of all points on the curve.
+var g_mouse_point;  // selected with 'mouse-over'
+var g_start;     // the starting point, selected by hovering over the grid.
+var g_nrlines=10;   // how many lines to draw from the starting point
+var pointlookup = {};
+
+function loadrealec(a, b)
+{
+    var F = new RealNumbers();
+    var newec = new EllipticCurve(F, a, b);
+    if (!ec || !ec.equalscurve(newec)) {
+        g_start = undefined;
+        curvepoints = [];
+        pointlookup = {};
+        if (ec)
+            console.log("curve changed", ec.a, ec.b, " -> ", newec.a, newec.b);
+        ec = newec;
+        calcpoints();
+    }
+    else if (g_mouse_point) {
+        g_start = g_mouse_point;
+        console.log("using mouse point");
+    }
+    drawgrid();
+    drawpath();
+    //loadpoints();
+}
+function calcpoints()
+{
+    curvepoints = [ec.infinity()];
+    for (var x = -10.0 ; x<10.0 ; x+=0.01)
+    {
+        var ysquared = x*x*x+g_a*x+g_b;
+        var y0 = ec.field.value(ysquared).sqrt(0);
+        var y1 = ec.field.value(ysquared).sqrt(1);
+        if (typeof(y0)!="undefined")
+        {
+            curvepoints.push(ec.point(x, y0));
+            if (!y0.equals(y1))
+                curvepoints.push(ec.point(x, y1));
+        }
+    }
+    g_start = curvepoints[Math.floor(curvepoints.length/2)];
+
+    for (var pt of curvepoints)
+        pointlookup[indexkey(pt)] = pt;
+}
+function indexkey(p)
+{
+    if (p.isinf())
+        return "(*,*)";
+    return "("+Math.round(p.x.real()/5).toString(10)+","+Math.round(p.y.real()/5).toString(10)+")";
+}
+function findpoint(x, y)
+{
+    var ix = "("+Math.round(x/5).toString(10)+","+Math.round(y/5).toString(10)+")";
+    return pointlookup[ix];
+}
+function cvx(r) { return (r.real()+10)*50; }
+function drawpoint(ctx, pt)
+{
+    if (pt.isinf())
+        return;
+    ctx.fillRect(cvx(pt.x), cvx(pt.y), 3, 3);
+}
+function startline(ctx, p)
+{
+    if (p.isinf())
+        return;
+    ctx.moveTo(cvx(p.x), cvx(p.y));
+}
+function drawlineto(ctx, p)
+{
+    if (p.isinf())
+        return;
+    ctx.lineTo(cvx(p.x), cvx(p.y));
+}
+
+function drawgrid()
+{
+    var canvas = document.getElementById("points");
+    canvas.width = 1000;
+    canvas.height = 1000;
+
+    var ctx = canvas.getContext("2d")
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (var pt of curvepoints)
+    {
+        drawpoint(ctx, pt);
+    }
+}
+function drawpath()
+{
+    if (!g_start) return;
+    if (!ec.isoncurve(g_start))
+        console.log("g_start is not on curve");
+
+    var canvas = document.getElementById("points");
+    var ctx = canvas.getContext("2d")
+
+    ctx.beginPath();
+    
+    var p = g_start;
+    startline(ctx, p);
+    for (var i=0 ; i<g_nrlines ; i++)
+    {
+        p = p.add(g_start);
+        drawlineto(ctx, p);
+        if (p.equals(g_start)) {
+            set_cycle_length(i);
+            break;
+        }
+    }
+    ctx.stroke();
+}
+
+function loadpoints()
+{
+    for (var a of curvepoints)
+        for (var b of curvepoints)
+        {
+        }
+}
+function update()
+{
+    loadrealec(g_a, g_b);
+    set_discriminant(-16*(4*g_a**3+27*g_b**2));
+}
+function makesliders()
+{
+    return [
+        makeslider("a:", "a", -16, 16, 0, t=>{ g_a = Number(t); }, ()=>g_a),
+        makeslider("b:", "b", -16, 16, 7, t=>{ g_b = Number(t); }, ()=>g_b),
+        makeslider("nlines:", "n", 0, 1000, 10, t=>{ g_nrlines = Number(t); }, ()=>g_nrlines),
+    ];
+}
+function setsliders()
+{
+    var a = document.getElementById('a');
+    a.value = g_a;
+    a.oninput();
+    var b = document.getElementById('b');
+    b.value = g_b;
+    b.oninput();
+
+}
+function makebutton(label, handler)
+{
+    var btn = el('button', {onclick:handler});
+    btn.innerHTML = label;
+    return btn;
+}
+function makebuttons()
+{
+    return [
+        makebutton("invalid:(0,0)", ()=>{ g_a = Number(0); g_b = Number(0);   setsliders(); update(); }),
+        makebutton("invalid:(-3,2)", ()=>{ g_a = Number(-3); g_b = Number(2); setsliders(); update(); }),
+        makebutton("valid: (0,-1)", ()=>{ g_a = Number(0); g_b = Number(-1);   setsliders(); update(); }),
+        makebutton("valid: (0,1)", ()=>{ g_a = Number(0); g_b = Number(1);   setsliders(); update(); }),
+        makebutton("valid: (-3,3)", ()=>{ g_a = Number(-3); g_b = Number(3);   setsliders(); update(); }),
+        makebutton("valid: (-4,0)", ()=>{ g_a = Number(-4); g_b = Number(0);   setsliders(); update(); }),
+        makebutton("valid: (-1,0)", ()=>{ g_a = Number(-1); g_b = Number(0);   setsliders(); update(); }),
+        makebutton("b such that disc=0", ()=>{ if (g_a<=0) { g_b = (4/27*(-g_a)**3)**(1/2); }  setsliders(); update(); }),
+        makebutton("a such that disc=0", ()=>{ g_a = -((27/4*(g_b)**2)**(1/3));  setsliders(); update(); }),
+    ];
+}
+
+function start()
+{
+    var div = document.getElementById("controlsdiv");
+    div.append(...makesliders());
+    var div = document.getElementById("buttonsdiv");
+    div.append(...makebuttons());
+
+    var fp = document.getElementById("points");
+    fp.onmousemove = function(e) {
+            var pt = findpoint(e.offsetX, e.offsetY);
+            if (pt) {
+                g_mouse_point = pt;
+                update();
+            }
+        };
+
+    update();
+}
+function set_cycle_length(n)
+{
+    var av =document.getElementById("cycle.value"); 
+    av.innerHTML = n;
+}
+function set_discriminant(n)
+{
+    var av =document.getElementById("discriminant.value"); 
+    av.innerHTML = n;
+}
+
+
+</script>
+    </head>
+    <body onLoad="start()">
+Menu:
+  <a href="ecdsacrack.html">crack demo</a> 
+  <a href="linearequations.html">using linear algebra</a> 
+  <a href="calculator.html">curve calculator</a> 
+  <a href="curve.html">curve demo</a> 
+  <a href="realcurve.html">real curve demo</a> 
+  <a href="transaction.html">bitcoin transaction</a> 
+  <a href="unittest.html">unittest</a><br>
+Author: Willem Hengeveld, <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>,
+Source: <a href="https://github.com/nlitsme/bitcoinexplainer">on github</a>.
+<p>
+This demonstrates what a real valued elliptic curve looks like.<br>
+The curve formula is: <code>y<sup>2</sup> = x<sup>3</sup> + a x + b</code>. The 'discriminant' should be non-zero for a valid curve.
+The lines are generated by starting at an arbitrary point, and keep adding it to itself.
+
+<div style="display:flex">
+    <div id="controlsdiv"></div>
+    <div id="buttonsdiv"></div>
+</div>
+<div>
+<span>order:</span> <span class=w50 id="order.value"></span>
+<span>cycle:</span> <span class=w50 id="cycle.value"></span>
+<span>discriminant:</span> <span class=w50 id="discriminant.value"></span>
+</div>
+
+<table>
+    <tr>
+        <td>
+<canvas id="points"></canvas>
+        </td>
+        <td>
+        </td>
+    </tr>
+</table>
+<div id="xygrid"></div>
+<div id="ptgrid"></div>
+    </body>
+</html>
+

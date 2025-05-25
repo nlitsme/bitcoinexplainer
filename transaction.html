@@ -155,6 +155,7 @@ function makeannotated(children)
     var dl = el('dl');
     for (var ch of children) {
         var dt = el('dt',
+            // note: this span needs a popup for the ch.attributes
             el('span', ch.tagName, {class:ch.children.length?'clickable':'leafnode'}),
             ' ',
             el('code', ch.children.length?truncatedstring(ch.textContent, 60):ch.textContent));
@@ -165,7 +166,6 @@ function makeannotated(children)
                 var node = ev.target;
                 while (node && node.tagName != 'DT')
                     node = node.parentNode;
-                console.log("ev.t.c", ev, node, node.collapsed);
                 if (node.collapsed)
                     insertAfter(el('dd', makeannotated(node.subchildren)), node);
                 else
@@ -199,6 +199,7 @@ Menu:
   <a href="linearequations.html">using linear algebra</a> 
   <a href="calculator.html">curve calculator</a> 
   <a href="curve.html">curve demo</a> 
+  <a href="realcurve.html">real curve demo</a> 
   <a href="transaction.html">bitcoin transaction</a> 
   <a href="unittest.html">unittest</a><br>
 Author: Willem Hengeveld, <a href="mailto:itsme@xs4all.nl">itsme@xs4all.nl</a>,
