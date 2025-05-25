@@ -24,11 +24,21 @@ function el()
         if (arg instanceof Element)
             args.push(arg);
         else if (arg instanceof Map)
-            arg.forEach( (v,k)=>e.setAttribute(k, v) );
+            arg.forEach( (v,k)=>{
+                if (typeof v === 'function')
+                    e[k] = v;
+                else
+                    e.setAttribute(k, v);
+            } );
         else if (typeof(arg) == "string")
             args.push(arg);
         else if (typeof(arg) == "object")
-            Object.entries(arg).forEach(([k,v])=>e.setAttribute(k, v))
+            Object.entries(arg).forEach(([k,v])=>{
+                if (typeof v === 'function')
+                    e[k] = v;
+                else
+                    e.setAttribute(k, v);
+            })
         else
             throw "unsupported el argument";
     }
