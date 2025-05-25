@@ -21,6 +21,8 @@ The calculations are performed by your browser, no data is sent to a server.
 
  * addressconverter
  * message hash calculation
+ * transaction hash calculation
+ * address hash calculation
  * add support for comments to the calculator
  * add real-valued curve for comparison
  * can you calculate the real-valued logarithm?
