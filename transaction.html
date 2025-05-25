@@ -88,13 +88,10 @@ function fetch_and_annotatetxn(txnid)
 }
 
 
-function makerow(line)
+function makerow(tr, line)
 {
-    var tr = el('tr');
     for (var e of line)
         tr.append(el('td', el('code', e)));
-
-    return tr;
 }
 function maketxnid(txnhash)
 {
@@ -103,9 +100,8 @@ function maketxnid(txnhash)
         id += txnhash.slice(62-i, 64-i);
     return id;
 }
-function makeinputrow(line)
+function makeinputrow(tr, line)
 {
-    var tr = el('tr');
     tr.append(el('td', el('code', "\t")));
     var hexline = line[1];
     var txnid = maketxnid(hexline.slice(0,64));
@@ -116,8 +112,6 @@ function makeinputrow(line)
     var txnrest = el('code', hexline.slice(64));
 
     tr.append(el('td', txncode, txnrest));
-
-    return tr;
 }
 
 function hexdumptxn(info, hex)
@@ -125,18 +119,23 @@ function hexdumptxn(info, hex)
     var r = new BitcoinReader(hextobytes(hex));
     var t = new Transaction(r);
     var tab = document.getElementById("hexdump");
-    tab.append(el('tr', el('td', el('hr'), {colspan:2})));
-    tab.append(el('tr', el('td', el('span', "txn hexdump "+info.hash+" block:"+info.block_id+" "+info.time), {colspan:2})));
+
+    tab.insertRow(0).appendChild(el('td', el('hr'), {colspan:2}));
+    tab.insertRow(1).appendChild(el('td', el('span', "txn hexdump "+info.hash+" block:"+info.block_id+" "+info.time), {colspan:2}));
+
+    var i = 2;
     var isin = false;
     for (var line of t.hexdump()) {
         if (line.find(a=>a.includes("nr inputs")))
             isin = true;
         else if (line.find(a=>a.includes("nr outputs")))
             isin = false;
+
+        var row = tab.insertRow(i++);
         if (isin && line[0]=="\t")
-            tab.append(makeinputrow(line));
+            makeinputrow(row, line);
         else
-            tab.append(makerow(line));
+            makerow(row, line);
     }
 }
 function insertAfter(newNode, existingNode) {
@@ -147,11 +146,18 @@ function removeNext(node) {
     node.parentNode.removeChild(node.nextSibling);
     node.collapsed = true;
 }
+function truncatedstring(txt, l)
+{
+    return txt.slice(0, l) + (txt.length>l ? "..." : "");
+}
 function makeannotated(children)
 {
     var dl = el('dl');
     for (var ch of children) {
-        var dt = el('dt', el('span', ch.tagName, {class:ch.children.length?'clickable':'leafnode'}), ' ', el('code', ch.textContent));
+        var dt = el('dt',
+            el('span', ch.tagName, {class:ch.children.length?'clickable':'leafnode'}),
+            ' ',
+            el('code', ch.children.length?truncatedstring(ch.textContent, 60):ch.textContent));
         dt.collapsed = true;
         if (ch.children.length) {
             dt.subchildren = ch.children;
@@ -177,12 +183,12 @@ function annotatetxn(info, hex)
     var r = new BitcoinReader(hextobytes(hex));
     var t = new Transaction(r);
     var tab = document.getElementById("hexdump");
-    tab.append(el('tr', el('td', el('hr'), {colspan:2})));
-    tab.append(el('tr', el('td', el('span', "txn hexdump "+info.hash+" block:"+info.block_id+" "+info.time), {colspan:2})));
+    tab.insertRow(0).appendChild(el('td', el('hr'), {colspan:2}));
+    tab.insertRow(1).appendChild(el('td', el('span', "txn hexdump "+info.hash+" block:"+info.block_id+" "+info.time), {colspan:2}));
 
     var parser = new DOMParser();
     var xml = parser.parseFromString(t.annotate(), "text/xml");
-    tab.append(el('tr', el('td', makeannotated(xml.firstChild.children), {colspan:2})));
+    tab.insertRow(2).appendChild(el('td', makeannotated(xml.firstChild.children), {colspan:2}));
 }
 
 </script>
