@@ -24,8 +24,11 @@ The calculations are performed by your browser, no data is sent to a server.
  * transaction hash calculation
  * address hash calculation
  * add support for comments to the calculator
- * add real-valued curve for comparison
+ * add grid display of several real curves with differnt a,b
  * can you calculate the real-valued logarithm?
+ * improve display of annotate values, adding the tag-attribute in a hover popup.
+ * explain the various hashing algorithms used.
+ * improve expression parser, fixing support for unary expressions.
 
 # AUTHOR
 
