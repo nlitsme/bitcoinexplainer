@@ -326,12 +326,12 @@ Several example calculations with the bitcoin parameters. In these calculations 
     <li>p - the curve base prime field, this is used for calculations involving coordinates.</li>
     <li>G - the fixed generator point</li>
     <li>n - the curve group order, this is the total number of points.</li>
-    <li>x - the secret key, a value between 0 and the group order</li>
-    <li>k - the signing secret, a value between 0 and the group order</li>
-    <li>px, py - the coordinates of the public key point, values between 0 and the coordinate order</li>
-    <li>r - the first part of the signature, a value between 0 and the coordinate order</li>
-    <li>s - the first part of the signature, a value between 0 and the group order</li>
-    <li>m - the message, a value between 0 and the group order</li>
+    <li>x - the secret key, a value between 0 and n (the curve group order)</li>
+    <li>k - the signing secret, a value between 0 and n (the curve group order)</li>
+    <li>px, py - the coordinates of the public key point, values between 0 and p</li>
+    <li>r - the first part of the signature, a value between 0 and p</li>
+    <li>s - the first part of the signature, a value between 0 and n (the curve group order)</li>
+    <li>m - the message, a value between 0 and n (the curve group order)</li>
     <li>Y - the public key</li>
 </ul>
 <em>Notes</em>
@@ -339,6 +339,7 @@ Several example calculations with the bitcoin parameters. In these calculations 
     <li>All numbers are hexadecimal</li>
     <li>Note that in bitcoin calculations the message is the hash of the prepared transaction.</li>
     <li>Also note that in bitcoin the s value is required to be between 0 and half the group order, you have to take the negative when it is larger.</li>
+    <li>Points on the secp256k1 curve : y^2 == x^3+7 (mod p)</li>
 </ul>
 
 <p>
