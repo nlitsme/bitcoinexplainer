@@ -34,6 +34,8 @@
  *
  * TODO:
  *   support '.' / DOT operator for method calls,  eg: pt.x   or  x.sqrt()
+ *   support unary operators
+ *   support comments.
  */
 
 
