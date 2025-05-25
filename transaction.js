@@ -264,8 +264,10 @@ class Input {
 
         var w = new BitcoinWriter();
         w.writebytes(this.source);
-        w.write32(this.index);
         hex += bytestohex(w.result());
+        w.reset();
+        w.write32(this.index);
+        hex += " " + bytestohex(w.result());
 
         w.reset();
         w.writevar(this.scriptdata.length);
@@ -473,7 +475,7 @@ class Transaction {
             line += " " + bytestohex(w.result());
             w.reset();
         }
-        lines.push([line, "- version" + (this.witnessflag?", witnessflag":"")]);
+        lines.push([line, "-- version" + (this.witnessflag?", witnessflag":"")]);
 
         w.writevar(this.inputs.length);
         lines.push([bytestohex(w.result()), "-- nr inputs"]);
