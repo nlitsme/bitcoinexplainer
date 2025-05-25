@@ -206,12 +206,12 @@ class GaloisField {
             }
         }
         else {
-            console.log("unhandled cuberot, p%27=", sw);
+            console.log("unhandled cuberoot case, p%27=", sw);
         }
     }
 
 
-    zero() { return numzero(this.p); } // todo: handle bigint as well.
+    zero() { return numzero(this.p); }
     iszero(x) { return numval(x)==numzero(this.p); }
 
     equals(lhs, rhs) { this.checkfields(lhs, rhs); return lhs.sub(rhs).iszero(); }

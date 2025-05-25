@@ -9,8 +9,6 @@
      * save  - write to a BitcoinWriter object
      * hexdump - return a formatted hexdump of the object.
 
-
-TODO: create an annotated output, tagging each element, making addresses, txnhash clickable.
 */
 const opcodetable = {
     0x4f:"1NEGATE",    // -1
@@ -235,7 +233,6 @@ function annotateValue(bytes, islast)
     }
     if (islast)
         return annotateScript(bytes, "p2sh");
-    console.log("todo-val", bytes);
     return `<unknownvalue>${bytestohex(bytes)}</unknownvalue>`;
 }
 
